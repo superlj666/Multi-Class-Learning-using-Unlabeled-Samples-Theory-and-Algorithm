@@ -3,12 +3,12 @@ clear;
 tic();
 
 data_name='dna';
-tau_A=1e-5;
+tau_A=0;
 tau_I=0;
 tau_S=0;
 tail_size=2;
-T=10;
-step=1/tau_A;
+T=100;
+step=1000;
 
 dataset_path=['../data/', data_name];
 [y_train, X_train]=libsvmread(dataset_path);
@@ -30,22 +30,21 @@ class_size=length(unique(y_train));
 
 XLX=sparse(dimension_size, dimension_size);
 
-W=rand(dimension_size, class_size);
+W=ones(dimension_size, class_size);
 
-train_err=[];
-train_loss=[];
-train_complexity=[];
-train_objective=[];
-n_update=[];
+train_err=zeros(T,1);
+train_loss=zeros(T,1);
+train_complexity=zeros(T,1);
+train_objective=zeros(T,1);
+n_update=zeros(T,1);
 
 test_err=[];
 test_loss=[];
 
 for epoch=1:T
+    grad_g=zeros(dimension_size, class_size);
     idx_rand = randperm(n_l);
-    n_update(end+1)=0;
     for i_sample=1:n_l
-        grad_g=zeros(dimension_size, class_size);
         i_idx=idx_rand(i_sample);
         
         % find true margin and predict margin
@@ -58,15 +57,15 @@ for epoch=1:T
         if margin_true-margin_pre < 1
             grad_g(:,y_train(i_idx))=grad_g(:,y_train(i_idx))-X_train(i_idx,:)';
             grad_g(:,loc_pre)=grad_g(:,loc_pre)+X_train(i_idx,:)';
-            n_update(end)=n_update(end)+1;
+            n_update(epoch)=n_update(epoch)+1;
         end
-        grad_g=grad_g./n_l+2*tau_A*W+XLX*W.*(2*tau_I);
+        grad_g=grad_g./n_l+W.*(2*tau_A)+XLX*W.*(2*tau_I);
         
         % update weight matrix
         if norm(grad_g,'fro') < 1e-6
             continue;
         end
-        W = W - step/(epoch*n_l+i_sample)*grad_g;
+        W = W - step/epoch*grad_g;
         
         % SVT with proximal gradient
         if tau_S ~=0
@@ -77,8 +76,6 @@ for epoch=1:T
             end
             W=U*S*V';
         end
-        W=min(1,1/(sqrt(tau_A)*norm(W,'fro')))*W;
-        %W=min(1,1/norm(W,'fro'))*W;
         
         % calculate test objective and test error
         if mod(i_sample,100) == 0
@@ -97,6 +94,7 @@ for epoch=1:T
         end
     end
     
+    
     % calculate train objective and train error every ep
     loss = 0;
     err = 0;
@@ -108,17 +106,13 @@ for epoch=1:T
         loss = loss + max(1 - margin_true + margin_pre, 0);
         err = err + (margin_true <= margin_pre);
     end
-    train_err(end+1) = err/numel(y_train);
-    train_loss(end+1) = loss/numel(y_train);
-    train_complexity(end+1) = norm(W, 'fro')^2;
-    train_objective(end+1) = train_loss(end) + tau_A*train_complexity(end);
+    train_err(epoch) = err/numel(y_train);
+    train_loss(epoch) = loss/numel(y_train);
+    train_complexity(epoch) = norm(W, 'fro')^2;
+    train_objective(epoch) = train_loss(epoch) + tau_A*train_complexity(epoch);
     
     fprintf('#epoch %.0f\tAER:%5.2f\tAEL:%5.2f\tUpdates:%.0f\n', ...
-        epoch, train_err(end)*100, train_loss(end), n_update(end));
-    
-    if train_loss(end) == 0
-        break;
-    end
+        epoch, train_err(epoch)*100, train_loss(epoch), n_update(epoch));
 end
 
 toc();

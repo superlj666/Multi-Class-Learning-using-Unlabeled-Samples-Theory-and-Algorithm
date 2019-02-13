@@ -19,6 +19,12 @@ test_path=['../data/', [data_name,'_test']];
 [y_test, X_test]=libsvmread(test_path);
 %X_test = X_test/norm(X_test, 'fro');
 
+y_labels = unique(y_train);
+for i_label = 1 : numel(y_labels)
+    y_train(y_train==y_labels(i_label))=i_label;
+    y_test(y_test==y_labels(i_label))=i_label;
+end
+
 % TODO normalize y
 % TODO sgd instead of gd
 n_l=length(y_train);
@@ -34,8 +40,8 @@ train_err=zeros(T,1);
 train_loss=zeros(T,1);
 train_complexity=zeros(T,1);
 train_objective=zeros(T,1);
-
 n_update=zeros(T,1);
+
 test_err=zeros(T,1);
 test_loss=zeros(T,1);
 for epoch=1:T
