@@ -11,11 +11,11 @@ tail_size=2;
 T=1000;
 step=300;
 
-dataset_path=['../data/', data_name];
+dataset_path=['../datasets/', data_name];
 [y_train, X_train]=libsvmread(dataset_path);
 %X_train = X_train/norm(X_train, 'fro');
 
-test_path=['../data/', [data_name,'_test']];
+test_path=['../datasets/', [data_name,'_test']];
 [y_test, X_test]=libsvmread(test_path);
 %X_test = X_test/norm(X_test, 'fro');
 
