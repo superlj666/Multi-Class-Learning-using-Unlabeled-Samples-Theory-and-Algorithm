@@ -29,7 +29,7 @@ function model = ps3vt_multi_train(XLX, X_train, y_train, model)
     tic();
     
     n_dimension = size(X_train, 2);
-    n_class = numel(unique(y_train));
+    n_class = max(y_train);
     n_sample = numel(y_train);
     if ~isfield(model, 'tau_A'), model.tau_A = 1e-6; end
     if ~isfield(model, 'tau_I'), model.tau_I = 1e-8; end
@@ -37,13 +37,15 @@ function model = ps3vt_multi_train(XLX, X_train, y_train, model)
     if ~isfield(model, 'tail_start'), model.tail_start = floor(min(n_class, n_dimension) * 0.8); end
     if ~isfield(model, 'step'), model.step = 1 / model.tau_A; end
     if ~isfield(model, 'n_batch'), model.n_batch = 32; end
-    if ~isfield(model, 'T'), model.T = 50; end
+    if ~isfield(model, 'T'), model.T = 30; end
     if ~isfield(model, 'iter_batch'), model.iter_batch = 0; end
+    if ~isfield(model, 'epoch'), model.epoch = 0; end
     if ~isfield(model, 'time_train'), model.time_train = 0; end
  
     W = rand(n_dimension, n_class);
     
     for epoch = 1 : model.T
+        model.epoch = model.epoch + 1;
         idx_rand = randperm(n_sample);
 
         errTot = 0;
@@ -98,7 +100,6 @@ function model = ps3vt_multi_train(XLX, X_train, y_train, model)
             model.S = S;
             W = min(1, 1 / (sqrt(model.tau_A ) * norm(W, 'fro'))) * W;
 
-            
             if isfield(model, 'n_record_batch') && (mod(model.iter_batch, model.n_record_batch) == 0 ...
                 || (epoch == model.T && i_batch == ceil(n_sample / model.n_batch)))
                 model.time_train = model.time_train + toc();
@@ -130,6 +131,4 @@ function model = ps3vt_multi_train(XLX, X_train, y_train, model)
 
     model.weights = W;
     model.time_train = model.time_train + toc();
-    
-    fprintf('Total time: %2.3f s.\t\t',model.time_train);
 end

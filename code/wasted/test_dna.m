@@ -7,18 +7,18 @@ rand('state', 0);
 data_name = 'dna';
 [X_train, y_train, X_test, y_test] = load_data(data_name);
 n_dimension = size(X_train,2);
-n_class = numel(unique(y_train));
+n_class = max(y_train);
 rate_labeled = 0.25;
 
 % parameters
-model.tau_I = 0.0156;
-model.tau_A = 0.0078;
-model.tau_S = 0;
+model.tau_I = 2^-4;
+model.tau_A = 2^-4;
+model.tau_S = 2^-7;
 model.tail_start = 2;
 model.T = 50;
-model.step = 128;
+model.step = 64;
 model.n_batch = 1;
-model.n_record_batch = 0;ceil(ceil(numel(y_train) * rate_labeled) / model.n_batch);
+model.n_record_batch = ceil(ceil(numel(y_train) * rate_labeled) / model.n_batch);
 model.test_batch = true;
 model.X_test = X_test;
 model.y_test = y_test;
