@@ -1,15 +1,17 @@
 addpath('../libsvm/matlab/');
+addpath('./utils/');
 clear;
 rand('state', 0);
 tic();
 
+
 data_name='dna';
-tau_A=1e-6;
-tau_I=1e-10;
-tau_S=2e-6;
+tau_A=1e-2;
+tau_I=1e-2;
+tau_S=2e-2;
 tail_size=2;
-T=30;
-step=min(1e+5,1/tau_A);
+T=50;
+step=min(100,1/tau_A);
 
 dataset_path=['../datasets/', data_name];
 [y_train, X_train]=libsvmread(dataset_path);
@@ -25,21 +27,22 @@ end
 
 % TODO normalize y
 % TODO sgd instead of gd
-dimension_size=size(X_train,2);
-class_size=length(unique(y_train));
+n_dimension=size(X_train,2);
+n_class=numel(unique(y_train));
 
-XLX = sparse(dimension_size, dimension_size);
+XLX = sparse(n_dimension, n_dimension);
 if tau_I ~=0
     L=construct_laplacian_graph(data_name, X_train, 3);
     XLX=X_train'*L*X_train;
+    XLX=min(1,1/(sqrt(tau_I)*norm(XLX,'fro')))*XLX;
 end
 
 X_train=X_train(1:500,:);
 y_train=y_train(1:500);
 
-W=rand(dimension_size, class_size);
+n_sample=numel(y_train);
+W=rand(n_dimension, n_class);
 
-n_l=numel(y_train);
 train_err=[];
 train_loss=[];
 train_complexity=[];
@@ -52,10 +55,10 @@ test_err=[];
 test_loss=[];
 
 for epoch=1:T
-    idx_rand = randperm(n_l);
+    idx_rand = randperm(n_sample);
     n_update(end+1)=0;
-    for i_sample=1:n_l
-        grad_g=zeros(dimension_size, class_size);
+    for i_sample=1:n_sample
+        grad_g=zeros(n_dimension, n_class);
         i_idx=idx_rand(i_sample);
         
         % find true margin and predict margin
@@ -70,20 +73,21 @@ for epoch=1:T
             grad_g(:,loc_pre)=grad_g(:,loc_pre)+X_train(i_idx,:)';
             n_update(end)=n_update(end)+1;
         end
-        grad_g=grad_g./n_l+2*tau_A*W+2*tau_I*XLX*W;
+        grad_g=grad_g+2*tau_A*W+2*tau_I*XLX*W;
         
         % update weight matrix
         if norm(grad_g,'fro') < 1e-6
             continue;
         end
-        W = W - step/(epoch*n_l+i_sample)*grad_g;
+        W = W - step/(epoch*n_sample+i_sample)*grad_g;
         
         % SVT with proximal gradient
+        S = zeros(n_dimension, n_class);
         if tau_S ~=0
             [U,S,V]=svd(W);
-            tail_size=min(tail_size,min(dimension_size, class_size));
-            for i_diag=tail_size:min(dimension_size, class_size)
-                S(i_diag,i_diag)=max(0,S(i_diag,i_diag)-step/(epoch*n_l+i_sample)*tau_S);
+            tail_size=min(tail_size,min(n_dimension, n_class));
+            for i_diag=tail_size:min(n_dimension, n_class)
+                S(i_diag,i_diag)=max(0,S(i_diag,i_diag)-step/(epoch*n_sample+i_sample)*tau_S);
             end
             W=U*S*V';
         end
@@ -93,7 +97,7 @@ for epoch=1:T
         % calculate test objective and test error
         if mod(i_sample,100) == 0
             [~,y_pre]=max(W'*X_test');
-            test_err(end+1)=sum(y_test'~=y_pre)/length(y_test);
+            test_err(end+1)=sum(y_test'~=y_pre)/numel(y_test);
             
             loss = 0;
             for i_test = 1:numel(y_test)
@@ -130,7 +134,7 @@ for epoch=1:T
     
     if train_loss(end) < 1e-6
            [~,y_pre]=max(W'*X_test');
-            test_err(end+1)=sum(y_test'~=y_pre)/length(y_test);
+            test_err(end+1)=sum(y_test'~=y_pre)/numel(y_test);
             
             loss = 0;
             for i_test = 1:numel(y_test)

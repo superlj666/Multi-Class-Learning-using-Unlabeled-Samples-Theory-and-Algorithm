@@ -9,7 +9,7 @@ tau_I=0;
 tau_S=0;
 tail_size=2;
 T=1000;
-step=300;
+step=300/2000;
 
 dataset_path=['../datasets/', data_name];
 [y_train, X_train]=libsvmread(dataset_path);
@@ -62,7 +62,8 @@ for epoch=1:T
             n_update(epoch)=n_update(epoch)+1;
         end
     end
-    grad_g=tau_L*grad_g./n_l+tau_A*2*W+tau_I*2*XLX*W;
+    grad_g=grad_g./n_l;
+    %grad_g=tau_L*grad_g./n_l+tau_A*2*W+tau_I*2*XLX*W;
 
     % update weight matrix
     if norm(grad_g,'fro') < 1e-4
@@ -82,7 +83,7 @@ for epoch=1:T
     end
     %W=W-sqrt(step^2-epoch^2)*grad_g;
     %W = W - step/(1+exp(epoch-T)*epoch)*grad_g;
-    W = W - step/epoch*grad_g;
+    W = W - step*grad_g;
     %W = W - step*grad_g;
     
     % SVT with proximal gradient

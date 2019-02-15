@@ -1,4 +1,4 @@
-function L=construct_laplacian_graph(data_name, X_train, K)
+function L = construct_laplacian_graph(data_name, X_train, K)
     tic();
     str=['../data/',data_name,'/laplacian_',num2str(K),'.mat'];
     if exist(str,'file')
