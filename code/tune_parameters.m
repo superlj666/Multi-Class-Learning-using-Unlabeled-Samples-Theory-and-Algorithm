@@ -5,10 +5,10 @@ rand('state', 0);
 
 data_name = 'dna';
 
-can_tau_I = [2.^(-7:-4),0];
-can_tau_A = 2.^(-7:-4);
-can_tau_S = [2.^(-7:-4),0];
-n_batch = [1, 32];
+can_tau_I = 2^-4;%[2.^(-7:-4),0];
+can_tau_A = 2^-5;%2.^(-7:-4);
+can_tau_S = 2^-7;%[2.^(-10:-4),0];
+n_batch = 1;%[1, 32];
 
 % load datasets
 [X_train, y_train, X_test, y_test] = load_data(data_name);
@@ -36,10 +36,10 @@ for para_I = can_tau_I
         for para_S = can_tau_S
             model.tau_S = para_S;
             for para_n_batch = n_batch
-                for i = 1 : 2
+                for i = 2 : 2
                     model.n_batch = para_n_batch;
                     model.tail_start = floor(min(n_class, n_dimension) * 0.8);
-                    model.step = i / para_A;
+                    model.step = 64;
                     model.n_batch = 32;
                     model.T = 50;
                     model.iter_batch = 0;
@@ -47,8 +47,8 @@ for para_I = can_tau_I
                     model = ps3vt_multi_train(XLX, X_train, y_train, model);
                     model = record_batch(XLX, X_test, y_test, model, 'test');
 
-                    fprintf('ERR: %.4f\ttau_A: %.4f\ttau_I: %.4f\ttau_S: %.4f\tstep:%4.2f\tn_batch: %.0f\n', ... 
-                        model.test_err(end), para_A, para_I, para_S, model.step, para_n_batch);
+                    fprintf('ERR: %.4f\t tau_I: %.4f\t tau_A: %.4f\t tau_S: %.4f\t n_batch: %.0f\t step:%4.2f\n', ... 
+                        model.test_err(end), para_I, para_A, para_S, para_n_batch, model.step);
                 end
             end
         end
@@ -56,8 +56,9 @@ for para_I = can_tau_I
 end
 
 [~, loc_best] = min(model.test_err);
-[d1, d2, d3, d4, d5] = ind2sub([numel(can_tau_I), numel(can_tau_A), numel(can_tau_S), numel(n_batch), 2], loc_best);
+[d1, d2, d3, d4, d5] = ind2sub([2, numel(n_batch), numel(can_tau_S), numel(can_tau_A), numel(can_tau_I)], loc_best);
+m_parameters = reshape(model.test_err, [2, numel(n_batch), numel(can_tau_S), numel(can_tau_A), numel(can_tau_I)]);
 
-fprintf('ERR: %3.4f\ttau_A: %.4f\ttau_I: %.4f\ttau_S: %.4f\tn_batch: %.0f\tstep: %.0f\n', ...
-    model.test_err(loc_best), can_tau_A(d1), can_tau_I(d2), can_tau_S(d3), n_batch(d4), d5);
-save(['../data/', data_name, '/', sprintf('%.5f', model.test_err(loc_best)*100),'.mat']);
+fprintf('-----Best ERR: %.4f\t tau_I: %.4f\t tau_A: %.4f\t tau_S: %.4f\t n_batch: %.0f\t step:%4.2f-----\n', ... 
+    model.test_err(loc_best), can_tau_I(d5), can_tau_A(d4), can_tau_S(d3), n_batch(d2), d1 / can_tau_A(d4));
+%save(['../data/', data_name, '/', sprintf('%.5f', model.test_err(loc_best)*100),'.mat']);

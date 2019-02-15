@@ -11,14 +11,14 @@ n_class = numel(unique(y_train));
 rate_labeled = 0.25;
 
 % parameters
-model.tau_A = 1e-7;
-model.tau_I = 1e-6;
-model.tau_S = 1e-4;
+model.tau_I = 0.0156;
+model.tau_A = 0.0078;
+model.tau_S = 0;
 model.tail_start = 2;
 model.T = 50;
-model.step = 1 / model.tau_A;
+model.step = 128;
 model.n_batch = 1;
-model.n_record_batch = ceil(ceil(numel(y_train) * rate_labeled) / model.n_batch);
+model.n_record_batch = 0;ceil(ceil(numel(y_train) * rate_labeled) / model.n_batch);
 model.test_batch = true;
 model.X_test = X_test;
 model.y_test = y_test;
@@ -39,11 +39,13 @@ X_train = X_train(1 : ceil(numel(y_train) * rate_labeled), :);
 y_train = y_train(1 : ceil(numel(y_train) * rate_labeled));
 
 model = ps3vt_multi_train(XLX, X_train, y_train, model);
-
+model = record_batch(XLX, X_test, y_test, model, 'test');
+fprintf('ERR: %.4f\ttau_A: %.4f\ttau_I: %.4f\ttau_S: %.4f\tstep:%4.2f\tn_batch: %.0f\n', ... 
+                        model.test_err(end), model.tau_A, model.tau_I, model.tau_S, model.step, model.n_batch);
 % visualization
-figure(1);
-plot(1:numel(model.train_loss), model.test_err)
-figure(2);
-plot(1:numel(model.train_loss),...
-    [model.train_loss; model.train_objective;...
-    model.train_trace; model.train_complexity; model.train_unlabeled])
+% figure(1);
+% plot(1:numel(model.train_loss), model.test_err)
+% figure(2);
+% plot(1:numel(model.train_loss),...
+%     [model.train_loss; model.train_objective;...
+%     model.train_trace; model.train_complexity; model.train_unlabeled])

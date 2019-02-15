@@ -94,8 +94,8 @@ function model = ps3vt_multi_train(XLX, X_train, y_train, model)
                     S(i_diag, i_diag) = max(0, S(i_diag, i_diag)-i_step * model.tau_S);
                 end
                 W = U * S * V';
-                model.S = S;
             end
+            model.S = S;
             W = min(1, 1 / (sqrt(model.tau_A ) * norm(W, 'fro'))) * W;
 
             
