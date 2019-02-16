@@ -1,6 +1,5 @@
 function errors_validate = cross_validation(L, X_train, y_train, model)
-    rand('state', 0);
-
+    % rng('default');
     n_folds = model.n_folds;
     rate_labeled = model.rate_labeled;
     data_name = model.data_name;
@@ -27,7 +26,7 @@ function errors_validate = cross_validation(L, X_train, y_train, model)
 
     % choose the best parameters    
     counter = 1;
-    errors_validate = zeros(numel(can_tau_I) * numel(can_tau_A) * numel(can_tau_S), 1);
+    errors_validate = cell(numel(can_tau_I) * numel(can_tau_A) * numel(can_tau_S), 2);
     for para_I = can_tau_I
         for para_A = can_tau_A
             for para_S = can_tau_S
@@ -53,7 +52,8 @@ function errors_validate = cross_validation(L, X_train, y_train, model)
                 fprintf('Grid: %.0f/%.0f\t ERR: %.4f\t tau_I: %.4f\t tau_A: %.4f\t tau_S: %.4f\n', ...
                     counter, numel(can_tau_I) * numel(can_tau_A) * numel(can_tau_S), ...
                     mean(model.test_err), para_I, para_A, para_S);
-                errors_validate(counter) = mean(model.test_err);
+                errors_validate{counter, 1} = mean(model.test_err);
+                errors_validate{counter, 2} = [para_I, para_A, para_S];
                 counter = counter + 1;
                 
                 clear model;
@@ -61,10 +61,10 @@ function errors_validate = cross_validation(L, X_train, y_train, model)
         end
     end
         
-    [~, loc_best] = min(errors_validate);
+    [~, loc_best] = min([errors_validate{:, 1}]);
     [d1, d2, d3] = ind2sub([numel(can_tau_S), numel(can_tau_A), numel(can_tau_I)], loc_best);
     fprintf('-----Best ERR: %.4f\t tau_I: %.4f\t tau_A: %.4f\t tau_S: %.4f-----\n', ...
-    errors_validate(loc_best), can_tau_I(d3), can_tau_A(d2), can_tau_S(d1));
+    errors_validate{loc_best, 1}, can_tau_I(d3), can_tau_A(d2), can_tau_S(d1));
     save(['../data/', data_name, '/', 'cross_validation.mat']);
 
     % cv_results = reshape(errors_validate, [numel(can_tau_S), numel(can_tau_A), numel(can_tau_I)]);

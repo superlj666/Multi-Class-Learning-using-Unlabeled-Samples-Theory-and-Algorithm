@@ -1,7 +1,7 @@
 addpath('../libsvm/matlab/');
 addpath('./utils/');
 clear;
-rand('state', 0);
+rng('default');
 
 data_name = 'dna';
 

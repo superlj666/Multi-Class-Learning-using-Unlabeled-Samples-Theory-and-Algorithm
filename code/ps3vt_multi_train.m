@@ -25,9 +25,9 @@ function model = ps3vt_multi_train(XLX, X_train, y_train, model)
     %   Author : Jian Li
     %   Date : 2019 / 02 / 05  
     %
-    rand('state', 0);
     tic();
-    
+    % rng('default');
+
     n_dimension = size(X_train, 2);
     n_class = max(y_train);
     n_sample = numel(y_train);
