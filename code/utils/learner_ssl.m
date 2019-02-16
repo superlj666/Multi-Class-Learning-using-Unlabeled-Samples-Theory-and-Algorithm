@@ -5,7 +5,7 @@ function model = learner_ssl(errors_validate, model)
     [~, loc_best] = min(cv_results(:));
     [d1, d2, d3] = ind2sub([numel(model.can_tau_S), numel(model.can_tau_A), numel(model.can_tau_I)], loc_best);
 
-    model.tau_I = model.can_tau_S(d3);
+    model.tau_I = model.can_tau_I(d3);
     model.tau_A = model.can_tau_A(d2);
     model.tau_S = 0;
 end
