@@ -8,7 +8,7 @@ function repeat_test(model, model_name, X, y, L)
         idx_test = setdiff(idx_rand, idx_train);
 
         XLX = X(idx_train, :)' * L(idx_train, idx_train) * X(idx_train, :);
-        %XLX = min(1, 1 / (sqrt(model.tau_I) * norm(XLX,'fro'))) * XLX;
+        XLX = min(1, 1 / (1 * norm(XLX,'fro'))) * XLX;
 
         idx_labeled = idx_train(1 : ceil(numel(idx_train) * model.rate_labeled));
         % record training and testing

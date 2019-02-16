@@ -98,7 +98,7 @@ function model = ps3vt_multi_train(XLX, X_train, y_train, model)
                 W = U * S * V';
             end
             model.S = S;
-            %W = min(1, 1 / (sqrt(model.tau_A ) * norm(W, 'fro'))) * W;
+            W = min(1, 1 / (1 * norm(W, 'fro'))) * W;
 
             if isfield(model, 'n_record_batch') && (mod(model.iter_batch, model.n_record_batch) == 0 ...
                 || (epoch == model.T && i_batch == ceil(n_sample / model.n_batch)))
