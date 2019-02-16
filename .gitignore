@@ -2,3 +2,5 @@ data/
 good_result/
 tmp/
 datasets/
+
+*.txt
