@@ -3,10 +3,13 @@ addpath('./utils/');
 clear;
 rng('default');
 
+can_datasets = {'letter', 'mnist', 'news20'};
+
+for dataset = can_datasets
 model.n_folds = 5;
 model.rate_test = 0.2;
 model.rate_labeled = 0.2;
-model.data_name = 'dna';
+model.data_name = char(dataset);
 model.n_batch = 32;
 model.can_tau_I = 2.^(-11:-11);
 model.can_tau_A = 2.^(-4:-4);
@@ -66,7 +69,7 @@ for i = 1 : 4
     end
 end
 fprintf(fid, '\\\\\n');
-
+end
 % model.tau_I = 2^-10;
 % model.tau_A = 2^-4;
 % model.tau_S = 2^-9;
