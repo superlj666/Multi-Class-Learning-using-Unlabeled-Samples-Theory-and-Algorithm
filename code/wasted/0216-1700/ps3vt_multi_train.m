@@ -25,7 +25,6 @@ function model = ps3vt_multi_train(XLX, X_train, y_train, model)
     %   Author : Jian Li
     %   Date : 2019 / 02 / 05  
     %
-    rand('state', 0);
     tic();
     
     n_dimension = size(X_train, 2);
@@ -37,7 +36,7 @@ function model = ps3vt_multi_train(XLX, X_train, y_train, model)
     if ~isfield(model, 'tail_start'), model.tail_start = ceil(min(n_class, n_dimension) * 0.5); end
     if ~isfield(model, 'step'), model.step = 1 / model.tau_A; end
     if ~isfield(model, 'n_batch'), model.n_batch = 32; end
-    if ~isfield(model, 'T'), model.T = 30; end
+    if ~isfield(model, 'T'), model.T = 20; end
     if ~isfield(model, 'iter_batch'), model.iter_batch = 0; end
     if ~isfield(model, 'epoch'), model.epoch = 0; end
     if ~isfield(model, 'time_train'), model.time_train = 0; end
@@ -98,7 +97,7 @@ function model = ps3vt_multi_train(XLX, X_train, y_train, model)
                 W = U * S * V';
             end
             model.S = S;
-            W = min(1, 1 / (1 * norm(W, 'fro'))) * W;
+            W = min(1, 1 / (sqrt(model.tau_A ) * norm(W, 'fro'))) * W;
 
             if isfield(model, 'n_record_batch') && (mod(model.iter_batch, model.n_record_batch) == 0 ...
                 || (epoch == model.T && i_batch == ceil(n_sample / model.n_batch)))

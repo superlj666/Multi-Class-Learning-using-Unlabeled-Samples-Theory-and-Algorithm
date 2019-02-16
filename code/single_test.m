@@ -14,7 +14,7 @@ function model = single_test(model, X, y, L)
     XLX = sparse(n_dimension, n_dimension);
     if model.tau_I ~= 0
         XLX = X(idx_train, :)' * L(idx_train, idx_train) * X(idx_train, :);
-        XLX = min(1, 1 / (sqrt(model.tau_I) * norm(XLX,'fro'))) * XLX;
+        XLX = min(1, 1 / (1 * norm(XLX,'fro'))) * XLX;
     end
 
     % record training and testing
