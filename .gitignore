@@ -1,3 +1,5 @@
+*.mat
+
 data/
 good_result/
 tmp/
