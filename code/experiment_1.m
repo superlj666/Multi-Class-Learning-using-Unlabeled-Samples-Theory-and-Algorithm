@@ -7,9 +7,9 @@ model.n_folds = 10;
 model.rate_labeled = 0.2;
 model.data_name = 'dna';
 model.n_batch = 32;
-model.can_tau_I = [2.^(-11:-3), 0];
-model.can_tau_A = 2.^(-5:-3);
-model.can_tau_S = [2.^(-10:-3), 0];
+model.can_tau_I = [2.^(-11:-9), 0];%[2.^(-11:-3), 0];
+model.can_tau_A = 2.^(-3);
+model.can_tau_S = [2.^(-6), 0];%[2.^(-10:-3), 0];
 
 % model.step = 100;
 % model_train(model);
@@ -31,16 +31,17 @@ end
 
 
 %% Choose parameters for every methods
-% model_linear = learner_linear(errors_validate, model);
-% model_lrc = learner_lrc(errors_validate, model);
-% model_ssl = learner_ssl(errors_validate, model);
-% model_lrc_ssl = learner_lrc_ssl(errors_validate, model);
+model_linear = learner_linear(errors_validate, model);
+model_lrc = learner_lrc(errors_validate, model);
+model_ssl = learner_ssl(errors_validate, model);
+model_lrc_ssl = learner_lrc_ssl(errors_validate, model);
 
 %% Choose parameters for our method
-model_lrc_ssl = learner_lrc_ssl(errors_validate, model);
-model_ssl = model_lrc_ssl; model_ssl.tau_S = 0;
-model_lrc = model_lrc_ssl; model_lrc.tau_I = 0;
-model_linear = model_lrc; model_linear.tau_S = 0;
+% model_lrc_ssl = learner_lrc_ssl(errors_validate, model);
+% model_ssl = model_lrc_ssl; model_ssl.tau_S = 0;
+% model_lrc = model_lrc_ssl; model_lrc.tau_I = 0;
+% model_linear = model_lrc; model_linear.tau_S = 0;
+
 repeat_test(model_linear, 'linear', X, y, L);
 repeat_test(model_lrc, 'lrc', X, y, L);
 repeat_test(model_ssl, 'ssl', X, y, L);
