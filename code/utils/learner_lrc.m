@@ -1,5 +1,5 @@
 function model = learner_lrc(errors_validate, model)
-    cv_results = reshape(errors_validate, [numel(model.can_tau_S), numel(model.can_tau_A), numel(model.can_tau_I)]);
+    cv_results = reshape([errors_validate{:, 1}], [numel(model.can_tau_S), numel(model.can_tau_A), numel(model.can_tau_I)]);
     cv_results(numel(model.can_tau_S), :, :) = Inf;
     cv_results(:, :, 1 : numel(model.can_tau_I) - 1) = Inf;
     [~, loc_best] = min(cv_results(:));

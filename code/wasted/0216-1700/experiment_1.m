@@ -1,7 +1,7 @@
 addpath('../libsvm/matlab/');
 addpath('./utils/');
 clear;
-rand('state', 0);
+rng('default');
 
 model.n_folds = 5;
 model.n_repeats = 1;
