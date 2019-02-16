@@ -29,7 +29,7 @@ model.y_test = y_test;
 % take use of Laplacian matrix
 XLX = sparse(n_dimension, n_dimension);
 if model.tau_I ~= 0
-    L = construct_laplacian_graph(data_name, X_train, 3);
+    L = construct_laplacian_graph(data_name, X_train, 10);
     XLX = X_train' * L * X_train;
     XLX = min(1, 1 / (sqrt(model.tau_I) * norm(XLX,'fro'))) * XLX;
 end

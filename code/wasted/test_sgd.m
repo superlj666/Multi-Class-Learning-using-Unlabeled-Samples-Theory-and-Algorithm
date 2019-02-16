@@ -32,7 +32,7 @@ n_class=numel(unique(y_train));
 
 XLX = sparse(n_dimension, n_dimension);
 if tau_I ~=0
-    L=construct_laplacian_graph(data_name, X_train, 3);
+    L=construct_laplacian_graph(data_name, X_train, 10);
     XLX=X_train'*L*X_train;
     XLX=min(1,1/(sqrt(tau_I)*norm(XLX,'fro')))*XLX;
 end

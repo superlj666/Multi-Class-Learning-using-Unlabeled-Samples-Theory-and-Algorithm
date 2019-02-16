@@ -1,7 +1,7 @@
 function experiment_1(model)    
     % load datasets
     [X, y] = load_data(model.data_name);    
-    L = construct_laplacian_graph(model.data_name, X, 3);
+    L = construct_laplacian_graph(model.data_name, X, 10);
 
     % cross validation to choose parameters
     if exist(['../data/', model.data_name, '/', 'cross_validation.mat'], 'file')

@@ -19,7 +19,7 @@ rate_labeled = 0.25;
 [y_train, y_test] = regularize_label(y_train, y_test);
 
 % take use of Laplacian matrix
-L = construct_laplacian_graph(data_name, X_train, 3);
+L = construct_laplacian_graph(data_name, X_train, 10);
 XLX = X_train' * L * X_train;
 
 % use a apart of training data as labeled data
