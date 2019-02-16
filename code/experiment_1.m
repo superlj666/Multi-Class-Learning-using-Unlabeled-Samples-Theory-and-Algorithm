@@ -45,7 +45,6 @@ repeat_test(model_linear, 'linear', X, y, L);
 repeat_test(model_lrc, 'lrc', X, y, L);
 repeat_test(model_ssl, 'ssl', X, y, L);
 repeat_test(model_lrc_ssl, 'lrc_ssl', X, y, L);
-
 % model.tau_I = 2^-10;
 % model.tau_A = 2^-4;
 % model.tau_S = 2^-9;
