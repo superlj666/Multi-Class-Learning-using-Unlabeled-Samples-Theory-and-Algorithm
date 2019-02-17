@@ -24,11 +24,7 @@ for dataset = can_datasets
     L = construct_laplacian_graph(model.data_name, X, 10);
 
     % cross validation to choose parameters
-    if exist(['../data/', model.data_name, '/', 'cross_validation.mat'], 'file')
-       load(['../data/', model.data_name, '/', 'cross_validation.mat'], 'errors_validate');
-    else
-        errors_validate = cross_validation(L, X, y, model);
-    end
+    errors_validate = cross_validation(L, X, y, model);
 end
 
 function model = learner_lrc_ssl_single(errors_validate, model)
