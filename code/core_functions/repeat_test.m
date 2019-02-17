@@ -5,6 +5,7 @@ function test_errs = repeat_test(model, model_name, X, y, L)
         % take use of Laplacian matrix
         idx_test = idx_rand(1:ceil(model.rate_test * numel(y)));
         idx_train = setdiff(idx_rand, idx_test);
+        idx_train = idx_train(randperm(numel(idx_train)));
 
         XLX = X(idx_train, :)' * L(idx_train, idx_train) * X(idx_train, :);
         XLX = min(1, 1 / (sqrt(model.tau_I) * norm(XLX,'fro'))) * XLX;
