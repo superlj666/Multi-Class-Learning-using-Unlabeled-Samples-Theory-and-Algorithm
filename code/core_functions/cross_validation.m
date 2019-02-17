@@ -22,6 +22,7 @@ function errors_validate = cross_validation(L, X_train, y_train, model)
         folds_XLX{i_fold, 1} = X_train(i_fold_train, :)' * L(i_fold_train, i_fold_train) * X_train(i_fold_train, :);
 
         % a part of i-th fold data as labeled data
+        i_fold_train = i_fold_train(randperm(numel(i_fold_train)));
         folds_train_labeled{i_fold, 1} = i_fold_train(1 : ceil(numel(i_fold_train) * rate_labeled));
     end
 
