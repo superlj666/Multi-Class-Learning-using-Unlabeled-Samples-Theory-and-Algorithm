@@ -1,5 +1,6 @@
 addpath('../libsvm/matlab/');
 addpath('./utils/');
+addpath('./core_functions/');
 clear;
 rng(64);
 
