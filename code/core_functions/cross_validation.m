@@ -19,10 +19,11 @@ function errors_validate = cross_validation(L, X_train, y_train, model)
         % i-th fold samples as validation data and the others as trainning data
         folds_validate{i_fold, 1} = idx_rand((i_fold - 1) * step_fold + 1:min(i_fold * step_fold, n_samples));
         i_fold_train = setdiff(idx_rand, folds_validate{i_fold, 1});
+        i_fold_train = i_fold_train(randperm(numel(i_fold_train)));
+        
         folds_XLX{i_fold, 1} = X_train(i_fold_train, :)' * L(i_fold_train, i_fold_train) * X_train(i_fold_train, :);
 
         % a part of i-th fold data as labeled data
-        i_fold_train = i_fold_train(randperm(numel(i_fold_train)));
         folds_train_labeled{i_fold, 1} = i_fold_train(1 : ceil(numel(i_fold_train) * rate_labeled));
     end
 
