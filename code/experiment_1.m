@@ -3,11 +3,14 @@ addpath('./utils/');
 clear;
 rng(64);
 
+can_datasets = {'rcv1_train', 'satimage', 'sector'};
+
+for dataset = can_datasets
 model.n_folds = 5;
 model.n_repeats = 30;
 model.rate_test = 0.2;
 model.rate_labeled = 0.2;
-model.data_name = 'dna';
+model.data_name = char(dataset);
 model.n_batch = 32;
 model.can_tau_I = 2 .^ -(7:2:11);
 model.can_tau_A = 2 .^ -(3:4);
@@ -65,8 +68,12 @@ for i = 1 : 4
     end
 end
 fprintf(fid, '\\\\\n');
+<<<<<<< HEAD
 fclose(fid);
 
+=======
+end
+>>>>>>> a3177b42eb1f2fcdc125919978583b1a6d77e376
 % model.tau_I = 2^-10;
 % model.tau_A = 2^-4;
 % model.tau_S = 2^-9;
