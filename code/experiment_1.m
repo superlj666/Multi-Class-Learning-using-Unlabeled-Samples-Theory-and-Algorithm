@@ -16,6 +16,7 @@ model.can_tau_I = 2 .^ -(7:2:11);
 model.can_tau_A = 2 .^ -(3:4);
 model.can_tau_S = 2 .^ -(5:2:9);
 model.can_step = 2 .^ (3.5:0.5:4.5);
+model.T = 50;
 
 % load datasets
 [X, y] = load_data(model.data_name);    
@@ -23,11 +24,11 @@ L = construct_laplacian_graph(model.data_name, X, 10);
 
 % cross validation to choose parameters
 if exist(['../data/', model.data_name, '/', 'cross_validation.mat'], 'file')
-   load(['../data/', model.data_name, '/', 'cross_validation.mat'], 'errors_validate');
+   load(['../data/', model.data_name, '/', 'cross_validation.mat'], rrors_validate');
 else
     errors_validate = cross_validation(L, X, y, model);
 end
-%errors_validate = cross_validation(L, X, y, model);
+% errors_validate = cross_validation(L, X, y, model);
 
 %% Choose parameters for every methods
 % model_linear = learner_linear(errors_validate, model);
@@ -41,6 +42,7 @@ model_ssl = model_lrc_ssl; model_ssl.tau_S = 0;
 model_lrc = model_lrc_ssl; model_lrc.tau_I = 0;
 model_linear = model_lrc; model_linear.tau_S = 0;
 
+%% training and testing
 linear_errs = repeat_test(model_linear, 'linear', X, y, L);
 lrc_errs = repeat_test(model_lrc, 'lrc', X, y, L);
 ssl_errs = repeat_test(model_ssl, 'ssl', X, y, L);
@@ -81,11 +83,12 @@ end
 % model = single_test(model, X, y, L);
 
 function model = learner_lrc_ssl_single(errors_validate, model)
-    cv_results = reshape([errors_validate{:, 1}], [numel(model.can_tau_S), numel(model.can_tau_A), numel(model.can_tau_I)]);
+    cv_results = reshape([errors_validate{:, 1}], [numel(model.can_step), numel(model.can_tau_S), numel(model.can_tau_A), numel(model.can_tau_I)]);
     [~, loc_best] = min(cv_results(:));
-    [d1, d2, d3] = ind2sub([numel(model.can_tau_S), numel(model.can_tau_A), numel(model.can_tau_I)], loc_best);
+    [d1, d2, d3, d4] = ind2sub([numel(model.can_step), numel(model.can_tau_S), numel(model.can_tau_A), numel(model.can_tau_I)], loc_best);
 
-    model.tau_I = model.can_tau_I(d3);
-    model.tau_A = model.can_tau_A(d2);
-    model.tau_S = model.can_tau_S(d1);
+    model.tau_I = model.can_tau_I(d4);
+    model.tau_A = model.can_tau_A(d3);
+    model.tau_S = model.can_tau_S(d2);
+    model.step = model.can_step(d1);
 end
