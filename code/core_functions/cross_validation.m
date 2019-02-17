@@ -55,7 +55,7 @@ function errors_validate = cross_validation(L, X_train, y_train, model)
                         counter, numel(can_tau_I) * numel(can_tau_A) * numel(can_tau_S) * numel(can_step), ...
                         mean(model.test_err), para_I, para_A, para_S, para_step);
                     errors_validate{counter, 1} = mean(model.test_err);
-                    errors_validate{counter, 2} = [para_I, para_A, para_S];
+                    errors_validate{counter, 2} = [para_I, para_A, para_S, para_step];
                     counter = counter + 1;
                     
                     clear model;
