@@ -4,7 +4,7 @@ addpath('./core_functions/');
 clear;
 rng(64);
 
-can_datasets = {'mnist'};
+can_datasets = {'shuttle'};
 
 for dataset = can_datasets
     model.n_folds = 5;
