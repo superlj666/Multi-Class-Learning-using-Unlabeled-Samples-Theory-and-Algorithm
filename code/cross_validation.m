@@ -6,6 +6,7 @@ function errors_validate = cross_validation(L, X_train, y_train, model)
     can_tau_I = model.can_tau_I;
     can_tau_A = model.can_tau_A;
     can_tau_S = model.can_tau_S;
+    can_step = model.can_step;
 
     % data split
     n_samples = numel(y_train);
@@ -30,41 +31,43 @@ function errors_validate = cross_validation(L, X_train, y_train, model)
     for para_I = can_tau_I
         for para_A = can_tau_A
             for para_S = can_tau_S
-                model.tau_I = para_I;
-                model.tau_A = para_A;
-                model.tau_S = para_S;
+                for para_step = can_step
+                    model.tau_I = para_I;
+                    model.tau_A = para_A;
+                    model.tau_S = para_S;
+                    model.step = para_step;
+                    for i_fold = 1 : n_folds
+                        model.iter_batch = 0;
+                        model.time_train = 0;
+                        
+                        XLX = min(1,1 / (sqrt(para_I) * norm(folds_XLX{i_fold, 1},'fro'))) * folds_XLX{i_fold, 1};
 
-                for i_fold = 1 : n_folds
-                    model.iter_batch = 0;
-                    model.time_train = 0;
+                        % training
+                        model = ps3vt_multi_train(XLX, X_train(folds_train_labeled{i_fold, 1}, :), ...
+                        y_train(folds_train_labeled{i_fold, 1}), model);
+
+                        % validating
+                        model = record_batch(XLX, X_train(folds_validate{i_fold, 1}, :), ...
+                        y_train(folds_validate{i_fold, 1}), model, 'test');
+                    end
+
+                    fprintf('Grid: %.0f/%.0f\t ERR: %.4f\t tau_I: %.4f\t tau_A: %.4f\t tau_S: %.4f\t step: %.4f\n', ...
+                        counter, numel(can_tau_I) * numel(can_tau_A) * numel(can_tau_S) * numel(can_step), ...
+                        mean(model.test_err), para_I, para_A, para_S, para_step);
+                    errors_validate{counter, 1} = mean(model.test_err);
+                    errors_validate{counter, 2} = [para_I, para_A, para_S];
+                    counter = counter + 1;
                     
-                    XLX = min(1,1 / (sqrt(para_I) * norm(folds_XLX{i_fold, 1},'fro'))) * folds_XLX{i_fold, 1};
-
-                    % training
-                    model = ps3vt_multi_train(XLX, X_train(folds_train_labeled{i_fold, 1}, :), ...
-                    y_train(folds_train_labeled{i_fold, 1}), model);
-
-                    % validating
-                    model = record_batch(XLX, X_train(folds_validate{i_fold, 1}, :), ...
-                    y_train(folds_validate{i_fold, 1}), model, 'test');
+                    clear model;
                 end
-
-                fprintf('Grid: %.0f/%.0f\t ERR: %.4f\t tau_I: %.4f\t tau_A: %.4f\t tau_S: %.4f\n', ...
-                    counter, numel(can_tau_I) * numel(can_tau_A) * numel(can_tau_S), ...
-                    mean(model.test_err), para_I, para_A, para_S);
-                errors_validate{counter, 1} = mean(model.test_err);
-                errors_validate{counter, 2} = [para_I, para_A, para_S];
-                counter = counter + 1;
-                
-                clear model;
             end
         end
     end
         
     [~, loc_best] = min([errors_validate{:, 1}]);
-    [d1, d2, d3] = ind2sub([numel(can_tau_S), numel(can_tau_A), numel(can_tau_I)], loc_best);
-    fprintf('-----Best ERR: %.4f\t tau_I: %.4f\t tau_A: %.4f\t tau_S: %.4f-----\n', ...
-    errors_validate{loc_best, 1}, can_tau_I(d3), can_tau_A(d2), can_tau_S(d1));
+    [d1, d2, d3, d4] = ind2sub([numel(can_step), numel(can_tau_S), numel(can_tau_A), numel(can_tau_I)], loc_best);
+    fprintf('-----Best ERR: %.4f\t tau_I: %.4f\t tau_A: %.4f\t tau_S: %.4f\t step: %.4f\n-----\n', ...
+    errors_validate{loc_best, 1}, can_tau_I(d4), can_tau_A(d3), can_tau_S(d2), can_step(d1));
     save(['../data/', data_name, '/', 'cross_validation.mat']);
 
     % cv_results = reshape(errors_validate, [numel(can_tau_S), numel(can_tau_A), numel(can_tau_I)]);

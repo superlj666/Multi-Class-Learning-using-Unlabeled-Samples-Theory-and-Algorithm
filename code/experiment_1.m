@@ -1,17 +1,18 @@
 addpath('../libsvm/matlab/');
 addpath('./utils/');
 clear;
-rng('default');
+rng(64);
 
-model.n_folds = 10;
+model.n_folds = 5;
 model.n_repeats = 30;
 model.rate_test = 0.2;
 model.rate_labeled = 0.2;
 model.data_name = 'dna';
 model.n_batch = 32;
-model.can_tau_I = 2.^(-11:-7);
-model.can_tau_A = 2.^(-5:-3);
-model.can_tau_S = 2.^(-9:-6);
+model.can_tau_I = 2 .^ -(7:2:11);
+model.can_tau_A = 2 .^ -(3:4);
+model.can_tau_S = 2 .^ -(5:2:9);
+model.can_step = 2 .^ (3.5:0.5:4.5);
 
 % load datasets
 [X, y] = load_data(model.data_name);    
@@ -23,6 +24,7 @@ if exist(['../data/', model.data_name, '/', 'cross_validation.mat'], 'file')
 else
     errors_validate = cross_validation(L, X, y, model);
 end
+%errors_validate = cross_validation(L, X, y, model);
 
 %% Choose parameters for every methods
 % model_linear = learner_linear(errors_validate, model);
@@ -40,6 +42,7 @@ linear_errs = repeat_test(model_linear, 'linear', X, y, L);
 lrc_errs = repeat_test(model_lrc, 'lrc', X, y, L);
 ssl_errs = repeat_test(model_ssl, 'ssl', X, y, L);
 lrc_ssl_errs = repeat_test(model_lrc_ssl, 'lrc_ssl', X, y, L);
+save(['../result/', model.data_name, '_errors.mat'], 'linear_errs', 'lrc_errs', 'ssl_errs', 'lrc_ssl_errs');
 
 errs = [linear_errs; lrc_errs; ssl_errs; lrc_ssl_errs];
 errs = errs' .* 100;
@@ -62,6 +65,7 @@ for i = 1 : 4
     end
 end
 fprintf(fid, '\\\\\n');
+fclose(fid);
 
 % model.tau_I = 2^-10;
 % model.tau_A = 2^-4;
