@@ -3,7 +3,7 @@ addpath('./utils/');
 clear;
 rng(64);
 
-can_datasets = {'rcv1_train', 'satimage', 'sector'};
+can_datasets = {'dna'};
 
 for dataset = can_datasets
 model.n_folds = 5;
@@ -68,12 +68,9 @@ for i = 1 : 4
     end
 end
 fprintf(fid, '\\\\\n');
-<<<<<<< HEAD
 fclose(fid);
 
-=======
 end
->>>>>>> a3177b42eb1f2fcdc125919978583b1a6d77e376
 % model.tau_I = 2^-10;
 % model.tau_A = 2^-4;
 % model.tau_S = 2^-9;
