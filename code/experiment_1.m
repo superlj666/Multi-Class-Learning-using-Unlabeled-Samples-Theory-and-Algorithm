@@ -3,22 +3,18 @@ addpath('./utils/');
 clear;
 rng('default');
 
-can_datasets = {'letter', 'mnist', 'news20'};
+can_datasets = {'rcv1_train', 'satimage', 'sector'};
 
 for dataset = can_datasets
-model.n_folds = 5;
+model.n_folds = 10;
+model.n_repeats = 30;
 model.rate_test = 0.2;
 model.rate_labeled = 0.2;
 model.data_name = char(dataset);
 model.n_batch = 32;
-model.can_tau_I = 2.^(-11:-11);
-model.can_tau_A = 2.^(-4:-4);
-model.can_tau_S = 2.^(-8:-8);
-
-% model.step = 100;
-% model_train(model);
-
-model.n_repeats = 10;
+model.can_tau_I = 2.^(-11:-7);
+model.can_tau_A = 2.^(-5:-3);
+model.can_tau_S = 2.^(-9:-6);
 
 % load datasets
 [X, y] = load_data(model.data_name);    
