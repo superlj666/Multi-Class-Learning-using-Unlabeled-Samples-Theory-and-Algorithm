@@ -3,7 +3,7 @@ addpath('./utils/');
 clear;
 rng(64);
 
-can_datasets = {'dna'};
+can_datasets = {'segment'};
 
 for dataset = can_datasets
 model.n_folds = 5;
@@ -12,7 +12,7 @@ model.rate_test = 0.2;
 model.rate_labeled = 0.2;
 model.data_name = char(dataset);
 model.n_batch = 32;
-model.can_tau_I = 2 .^ -(7:2:11);
+model.can_tau_I = [2 .^ -(7:2:11), 0];
 model.can_tau_A = 2 .^ -(3:4);
 model.can_tau_S = 2 .^ -(5:2:9);
 model.can_step = 2 .^ (3.5:0.5:4.5);
