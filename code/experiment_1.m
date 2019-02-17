@@ -4,21 +4,27 @@ addpath('./core_functions/');
 clear;
 rng(64);
 
-can_datasets = {'segment'};
+can_datasets = {'dna'};
 
 for dataset = can_datasets
+    data_name = char(dataset);
     %% Choose parameters for our method
-    model_lrc_ssl = learner_lrc_ssl_single(errors_validate, model);
-    model_ssl = model_lrc_ssl; model_ssl.tau_S = 0;
-    model_lrc = model_lrc_ssl; model_lrc.tau_I = 0;
-    model_linear = model_lrc; model_linear.tau_S = 0;
+    load(['../result/', data_name, '_models.mat']);
+    model_linear = model_initialization(data_name, model_linear);
+    model_lrc = model_initialization(data_name, model_lrc);
+    model_ssl = model_initialization(data_name, model_ssl);
+    model_lrc_ssl = model_initialization(data_name, model_lrc_ssl);
+
+    % load datasets
+    [X, y] = load_data(data_name);    
+    L = construct_laplacian_graph(data_name, X, 10);
 
     %% training and testing
     linear_errs = repeat_test(model_linear, 'linear', X, y, L);
     lrc_errs = repeat_test(model_lrc, 'lrc', X, y, L);
     ssl_errs = repeat_test(model_ssl, 'ssl', X, y, L);
     lrc_ssl_errs = repeat_test(model_lrc_ssl, 'lrc_ssl', X, y, L);
-    save(['../result/', model.data_name, '_errors.mat'], 'linear_errs', 'lrc_errs', 'ssl_errs', 'lrc_ssl_errs');
+    save(['../result/', data_name, '_errors.mat'], 'linear_errs', 'lrc_errs', 'ssl_errs', 'lrc_ssl_errs');
 
     errs = [linear_errs; lrc_errs; ssl_errs; lrc_ssl_errs];
     errs = errs' .* 100;
@@ -30,7 +36,7 @@ for dataset = can_datasets
     % if bigger than 1.676, it is significantly better one.
 
     fid = fopen('table_result.txt', 'a');
-    fprintf(fid, '%s\t', model.data_name);
+    fprintf(fid, '%s\t', data_name);
     for i = 1 : 4
         if i == loc_min
             fprintf(fid, '&\\textbf{&%2.3f$\\pm$%.3f}\t', mean(errs(:, i)), std(errs(:, i)));
@@ -42,4 +48,14 @@ for dataset = can_datasets
     end
     fprintf(fid, '\\\\\n');
     fclose(fid);
+end
+
+function model = model_initialization(data_name, model)    
+    model.data_name = data_name;
+    model.n_folds = 5;
+    model.n_repeats = 50;
+    model.rate_test = 0.2;
+    model.rate_labeled = 0.2;
+    model.n_batch = 32;
+    model.T = 50;
 end
