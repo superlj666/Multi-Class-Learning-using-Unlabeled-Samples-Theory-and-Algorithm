@@ -4,20 +4,20 @@ addpath('./core_functions/');
 clear;
 rng(64);
 
-can_datasets = {'protein'};
+can_datasets = {'satimage'};
 
 for dataset = can_datasets
     model.n_folds = 5;
     model.n_repeats = 30;
-    model.rate_test = 0.2;
-    model.rate_labeled = 0.2;
+    model.rate_test = 0.3;
+    model.rate_labeled = 0.5;
     model.data_name = char(dataset);
     model.n_batch = 32;
+    model.T = 50;
     model.can_tau_I = [2 .^ -(7:2:11), 0];
     model.can_tau_A = 2 .^ -(3:4);
     model.can_tau_S = [2 .^ -(5:2:9), 0];
     model.can_step = 2 .^ (3.5:0.5:4.5);
-    model.T = 50;
 
     % load datasets
     [X, y] = load_data(model.data_name);    
