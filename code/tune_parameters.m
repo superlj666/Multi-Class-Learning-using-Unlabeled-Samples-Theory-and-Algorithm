@@ -4,9 +4,10 @@ addpath('./core_functions/');
 clear;
 rng(64);
 
-can_datasets = {'satimage'};
+can_datasets = {'mnist'};
 
 for dataset = can_datasets
+    fprintf('cv for %s\n', char(dataset));
     model.n_folds = 5;
     model.n_repeats = 30;
     model.rate_test = 0.3;
