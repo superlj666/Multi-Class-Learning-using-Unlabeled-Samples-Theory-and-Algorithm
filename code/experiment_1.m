@@ -4,13 +4,13 @@ addpath('./core_functions/');
 clear;
 
 datasets = {
-% 'iris', ...
-% 'wine', ...
-% 'glass', ...
+%'iris', ...
+'wine', ...
+%'glass', ...
 % 'svmguide4', ...
 % 'svmguide2', ...
-% 'vowel', ...
-'vehicle', ...
+%'vowel', ...
+%'vehicle', ...
 % 'dna', ...
 % 'segment', ...
 % 'satimage', ...
@@ -43,21 +43,15 @@ function exp1_dataset(data_name)
     L = construct_laplacian_graph(data_name, X, 10);
 
     %% training and testing
-    [linear_errs, linear_curve] = repeat_test(model_linear, 'linear', X, y, L);
-    [lrc_errs, lrc_curve] = repeat_test(model_lrc, 'lrc', X, y, L);
-    [ssl_errs, ssl_curve] = repeat_test(model_ssl, 'ssl', X, y, L);
-    [lrc_ssl_errs, lrc_ssl_curve] = repeat_test(model_lrc_ssl, 'lrc_ssl', X, y, L);
-    save(['../result/', data_name, '_errors.mat'], 'linear_errs', 'lrc_errs', 'ssl_errs', 'lrc_ssl_errs');
+    linear_errs = repeat_test(model_linear, 'linear', X, y, L);
+    lrc_errs = repeat_test(model_lrc, 'lrc', X, y, L);
+    ssl_errs = repeat_test(model_ssl, 'ssl', X, y, L);
+    lrc_ssl_errs = repeat_test(model_lrc_ssl, 'lrc_ssl', X, y, L);
+    save(['../result/', data_name, '_results.mat'], ...
+        'linear_errs', 'lrc_errs', 'ssl_errs', 'lrc_ssl_errs');
     
-    errs = [linear_errs, lrc_errs, ssl_errs, lrc_ssl_errs];
+    errs = [mean(linear_errs(:,end-4:end), 2), mean(lrc_errs(:,end-4:end), 2), mean(ssl_errs(:,end-4:end), 2), mean(lrc_ssl_errs(:,end-4:end), 2)];
     output(errs, data_name);
-    
-    error_curve(linear_curve, lrc_curve, ssl_curve, lrc_ssl_curve);
-end
-
-function error_curve(linear_curve, lrc_curve, ssl_curve, lrc_ssl_curve)
-    x_length = min([size(linear_curve, 2), size(lrc_curve, 2), size(ssl_curve, 2), size(lrc_ssl_curve, 2)]);
-    plot(1:x_length, [linear_curve; lrc_curve; ssl_curve; lrc_ssl_curve]);
 end
 
 function output(errs, data_name)
@@ -69,7 +63,7 @@ function output(errs, data_name)
     t(isnan(t)) = Inf;
     % if bigger than 1.676, it is significantly better one.
 
-    fid = fopen('table_result.txt', 'a');
+    fid = fopen('../result/exp1/table_result.txt', 'a');
     fprintf(fid, '%s\t', data_name);
     for i = 1 : size(errs, 2)
         if i == loc_min

@@ -1,8 +1,7 @@
-function [test_errs, test_curve] = repeat_test(model, model_name, X, y, L)    
+function repeat_errors = repeat_test(model, model_name, X, y, L)    
     % rng('default');
 
     test_models = cell(model.n_repeats, 1);
-    test_errs = zeros(model.n_repeats, 1);
     for i_repeat = 1 : model.n_repeats
         idx_rand = randperm(numel(y));
         % take use of Laplacian matrix
@@ -25,10 +24,10 @@ function [test_errs, test_curve] = repeat_test(model, model_name, X, y, L)
         i_model = ps3vt_multi_train(XLX, X(idx_labeled, :), y(idx_labeled), i_model);
 
         test_models{i_repeat, 1} = i_model.test_err;
-        test_errs(i_repeat, 1) = mean(i_model.test_err(end - 4: end));
     end
     
-    test_curve = mean(cell2mat(test_models));
+    repeat_errors = cell2mat(test_models);
+    test_errs = mean(repeat_errors(:,end-4:end), 2);
     fprintf('Dateset: %s\t Method: %s\t Mean: %.4f\t STD: %.4f\t tau_I: %.4f\t tau_A: %.4f\t tau_S: %.4f\t\n', ... 
         model.data_name, model_name, mean(test_errs), std(test_errs), model.tau_I, model.tau_A, model.tau_S);
 end

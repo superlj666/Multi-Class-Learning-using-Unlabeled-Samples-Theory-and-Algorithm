@@ -5,9 +5,16 @@ clear;
 rng(64);
 
 datasets = {
-'dna', ...
-%'segment', ...
-%'satimage', ...
+%'iris', ...
+'wine', ...
+%'glass', ...
+% 'svmguide4', ...
+% 'svmguide2', ...
+%'vowel', ...
+%'vehicle', ...
+% 'dna', ...
+% 'segment', ...
+% 'satimage', ...
 % 'usps', ...
 % 'pendigits', ...
 % 'letter', ...
@@ -25,51 +32,31 @@ end
 
 function exp2_dataset(data_name)    
     %% Choose parameters for our method
-    load(['../result/', data_name, '_models.mat'], 'model_linear', 'model_lrc', 'model_ssl', 'model_lrc_ssl');
-    model_linear = model_initialization(data_name, model_linear);
-    model_lrc = model_initialization(data_name, model_lrc);
-    model_ssl = model_initialization(data_name, model_ssl);
-    model_lrc_ssl = model_initialization(data_name, model_lrc_ssl);
-
-    % load datasets
-    [X, y] = load_data(data_name);    
-    L = construct_laplacian_graph(data_name, X, 10);
-
-    model_linear = training_process(model_linear, X, y, L);
-    model_lrc = training_process(model_lrc, X, y, L);
-    model_ssl = training_process(model_ssl, X, y, L);
-    model_lrc_ssl = training_process(model_lrc_ssl, X, y, L);
-
-    plot(1:size(model_linear.test_err, 2), [model_linear.test_err; model_ssl.test_err; model_lrc.test_err; model_lrc_ssl.test_err]);
-    save(['../result/', data_name, '_converge.mat'], 'model_linear', 'model_lrc', 'model_ssl', 'model_lrc_ssl');
+    load(['../result/', data_name, '_results.mat'], 'linear_errs', 'lrc_errs', 'ssl_errs', 'lrc_ssl_errs');
+    file_path = ['../result/exp2/', data_name];
+    error_curve_save(file_path, mean(linear_errs, 1), mean(lrc_errs, 1), mean(ssl_errs, 1), mean(lrc_ssl_errs, 1));
 end
 
-function model = training_process(model, X, y, L) 
-    idx_rand = randperm(numel(y));
-    % take use of Laplacian matrix
-    idx_test = idx_rand(1:ceil(model.rate_test * numel(y)));
-    idx_train = setdiff(idx_rand, idx_test);
-    idx_train = idx_train(randperm(numel(idx_train)));
+function error_curve(linear_errs, lrc_errs, ssl_errs, lrc_ssl_errs)
+    x_length = min([size(linear_errs, 2), size(lrc_errs, 2), size(ssl_errs, 2), size(lrc_ssl_errs, 2)]);
+    plot(1:x_length, [linear_errs; lrc_errs; ssl_errs; lrc_ssl_errs]);
+end
 
-    XLX = X(idx_train, :)' * L(idx_train, idx_train) * X(idx_train, :);
-    XLX = min(1, 1 / (sqrt(model.tau_I) * norm(XLX,'fro'))) * XLX;
+function error_curve_save(file_path, linear_errs, lrc_errs, ssl_errs, lrc_ssl_errs)
+    fig=figure;
+    x_length = min([size(linear_errs, 2), size(lrc_errs, 2), size(ssl_errs, 2), size(lrc_ssl_errs, 2)]);
+    plot(1:x_length, lrc_ssl_errs, '-','LineWidth',2);
+    hold on;
+    plot(1:x_length, lrc_errs, '-','LineWidth',2);
+    plot(1:x_length, ssl_errs, '-','LineWidth',2);
+    plot(1:x_length, linear_errs, '-','LineWidth',2);
 
-    idx_labeled = idx_train(1 : ceil(numel(idx_train) * model.rate_labeled));
+    grid on
+    legend({'Ours', 'LRC-MC', 'SS-MC', 'Linear-MC'}, 'FontSize',12);
+    ylabel('Error Rate(%)');
+    xlabel('The number of iterations');
+    set(gca,'FontSize',20,'Fontname', 'Times New Roman');
+    hold off;
     
-    % record training process
-    model.n_record_batch = ceil(numel(idx_labeled) / model.n_batch);
-    model.test_batch = true;
-    model.X_test = X(idx_test, :); 
-    model.y_test = y(idx_test);
-    model = ps3vt_multi_train(XLX, X(idx_labeled, :), y(idx_labeled), model);
-end   
-
-function model = model_initialization(data_name, model)    
-    model.data_name = data_name;
-    model.n_folds = 5;
-    model.n_repeats = 30;
-    model.rate_test = 0.3;
-    model.rate_labeled = 0.3;
-    model.n_batch = 32;
-    model.T = 50;
+    print(fig,file_path,'-depsc')
 end
