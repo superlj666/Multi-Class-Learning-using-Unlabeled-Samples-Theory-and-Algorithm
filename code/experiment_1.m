@@ -20,12 +20,12 @@ datasets = {
 
 for dataset = datasets
     parameter_observe(char(dataset));
-    exp_dataset(char(dataset));
+    exp1_dataset(char(dataset));
 end
 
-function exp_dataset(data_name)
+function exp1_dataset(data_name)
     %% Choose parameters for our method
-    load(['../result/', data_name, '_models.mat']);
+    load(['../result/', data_name, '_models.mat'], model_linear, model_lrc, model_ssl, model_lrc_ssl);
     model_linear = model_initialization(data_name, model_linear);
     model_lrc = model_initialization(data_name, model_lrc);
     model_ssl = model_initialization(data_name, model_ssl);
