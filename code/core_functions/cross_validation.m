@@ -40,29 +40,30 @@ function errors_validate = cross_validation(L, X_train, y_train, model)
                     model.tau_A = para_A;
                     model.tau_S = para_S;
                     model.step = para_step;
+
+                    test_errs = zeros(n_folds, 1);
                     for i_fold = 1 : n_folds
-                        model.iter_batch = 0;
-                        model.time_train = 0;
-                        
                         XLX = min(1,1 / (sqrt(para_I) * norm(folds_XLX{i_fold, 1},'fro'))) * folds_XLX{i_fold, 1};
 
                         % training
-                        model = ps3vt_multi_train(XLX, X_train(folds_train_labeled{i_fold, 1}, :), ...
-                        y_train(folds_train_labeled{i_fold, 1}), model);
+                        i_model = model;
+                        i_model.n_record_batch = ceil(numel(folds_train_labeled{i_fold, 1}) / i_model.n_batch);
+                        i_model.test_batch = true;
+                        i_model.X_test = X_train(folds_validate{i_fold, 1}, :); 
+                        i_model.y_test = y_train(folds_validate{i_fold, 1});
+                        i_model = ps3vt_multi_train(XLX, X_train(folds_train_labeled{i_fold, 1}, :), ...
+                        y_train(folds_train_labeled{i_fold, 1}), i_model);
 
-                        % validating
-                        model = record_batch(XLX, X_train(folds_validate{i_fold, 1}, :), ...
-                        y_train(folds_validate{i_fold, 1}), model, 'test');
+                        test_errs(i_fold) = mean(i_model.test_err(end-4:end));
                     end
 
                     fprintf('Grid: %.0f/%.0f\t ERR: %.4f\t tau_I: %.4f\t tau_A: %.4f\t tau_S: %.4f\t step: %.4f\n', ...
                         counter, numel(can_tau_I) * numel(can_tau_A) * numel(can_tau_S) * numel(can_step), ...
-                        mean(model.test_err), para_I, para_A, para_S, para_step);
-                    errors_validate{counter, 1} = mean(model.test_err);
+                        mean(test_errs), para_I, para_A, para_S, para_step);
+                    errors_validate{counter, 1} = mean(test_errs);
                     errors_validate{counter, 2} = [para_I, para_A, para_S, para_step];
                     counter = counter + 1;
                     
-                    clear model;
                 end
             end
         end

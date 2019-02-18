@@ -2,9 +2,15 @@ addpath('../libsvm/matlab/');
 addpath('./utils/');
 addpath('./core_functions/');
 clear;
-rng(64);
 
 datasets = {
+% 'iris', ...
+% 'wine', ...
+% 'glass', ...
+% 'svmguide4', ...
+% 'svmguide2', ...
+% 'vowel', ...
+'vehicle', ...
 % 'dna', ...
 % 'segment', ...
 % 'satimage', ...
@@ -12,13 +18,14 @@ datasets = {
 % 'pendigits', ...
 % 'letter', ...
 % 'protein', ...
-'poker', ...
-'shuttle', ...
+% 'poker', ...
+% 'shuttle', ...
 % 'Sensorless', ...
 % 'mnist', ...
 };
 
 for dataset = datasets
+    rng('default');
     parameter_observe(char(dataset));
     exp1_dataset(char(dataset));
 end
@@ -36,14 +43,25 @@ function exp1_dataset(data_name)
     L = construct_laplacian_graph(data_name, X, 10);
 
     %% training and testing
-    linear_errs = repeat_test(model_linear, 'linear', X, y, L);
-    lrc_errs = repeat_test(model_lrc, 'lrc', X, y, L);
-    ssl_errs = repeat_test(model_ssl, 'ssl', X, y, L);
-    lrc_ssl_errs = repeat_test(model_lrc_ssl, 'lrc_ssl', X, y, L);
+    [linear_errs, linear_curve] = repeat_test(model_linear, 'linear', X, y, L);
+    [lrc_errs, lrc_curve] = repeat_test(model_lrc, 'lrc', X, y, L);
+    [ssl_errs, ssl_curve] = repeat_test(model_ssl, 'ssl', X, y, L);
+    [lrc_ssl_errs, lrc_ssl_curve] = repeat_test(model_lrc_ssl, 'lrc_ssl', X, y, L);
     save(['../result/', data_name, '_errors.mat'], 'linear_errs', 'lrc_errs', 'ssl_errs', 'lrc_ssl_errs');
+    
+    errs = [linear_errs, lrc_errs, ssl_errs, lrc_ssl_errs];
+    output(errs, data_name);
+    
+    error_curve(linear_curve, lrc_curve, ssl_curve, lrc_ssl_curve);
+end
 
-    errs = [linear_errs; lrc_errs; ssl_errs; lrc_ssl_errs];
-    errs = errs' .* 100;
+function error_curve(linear_curve, lrc_curve, ssl_curve, lrc_ssl_curve)
+    x_length = min([size(linear_curve, 2), size(lrc_curve, 2), size(ssl_curve, 2), size(lrc_ssl_curve, 2)]);
+    plot(1:x_length, [linear_curve; lrc_curve; ssl_curve; lrc_ssl_curve]);
+end
+
+function output(errs, data_name)
+    errs = errs .* 100;
 
     [~, loc_min] = min(mean(errs));
     d = errs - errs(:, loc_min);
@@ -53,7 +71,7 @@ function exp1_dataset(data_name)
 
     fid = fopen('table_result.txt', 'a');
     fprintf(fid, '%s\t', data_name);
-    for i = 1 : 4
+    for i = 1 : size(errs, 2)
         if i == loc_min
             fprintf(fid, '&\\textbf{&%2.3f$\\pm$%.3f}\t', mean(errs(:, i)), std(errs(:, i)));
         elseif t(i) < 1.676
@@ -69,9 +87,9 @@ end
 function model = model_initialization(data_name, model)    
     model.data_name = data_name;
     model.n_folds = 5;
-    model.n_repeats = 50;
+    model.n_repeats = 30;
     model.rate_test = 0.3;
-    model.rate_labeled = 0.5;
+    model.rate_labeled = 0.3;
     model.n_batch = 32;
     model.T = 50;
 end

@@ -67,9 +67,9 @@ end
 function model = model_initialization(data_name, model)    
     model.data_name = data_name;
     model.n_folds = 5;
-    model.n_repeats = 50;
+    model.n_repeats = 30;
     model.rate_test = 0.3;
-    model.rate_labeled = 0.5;
+    model.rate_labeled = 0.3;
     model.n_batch = 32;
     model.T = 50;
 end
