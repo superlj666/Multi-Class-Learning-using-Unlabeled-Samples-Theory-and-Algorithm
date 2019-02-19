@@ -115,18 +115,18 @@ function model = ps3vt_multi_train(XLX, X_train, y_train, model)
         %fprintf('#Batch : %5.0f(epoch %3.0f)\tAER : %2.2f\tAEL : %2.2f\tUpdates : %5.0f\n', ...
         %model.iter_batch, epoch, errTot / n_sample * 100, lossTot / n_sample, n_update);
 
-        if norm(W-W_old, 'fro') / norm(W_old, 'fro')< 1e-4
-            if isfield(model, 'n_record_batch') 
-                model.time_train = model.time_train + toc();
-                model.weights = W;
-                model = record_batch(XLX, X_train, y_train, model, 'train');
-                if isfield(model, 'test_batch') && isfield(model, 'X_test') && isfield(model, 'y_test')
-                    model = record_batch(XLX, model.X_test, model.y_test, model, 'test');
-                end
-                tic();
-            end
-            break;
-        end
+%         if norm(W-W_old, 'fro') / norm(W_old, 'fro')< 1e-4
+%             if isfield(model, 'n_record_batch') 
+%                 model.time_train = model.time_train + toc();
+%                 model.weights = W;
+%                 model = record_batch(XLX, X_train, y_train, model, 'train');
+%                 if isfield(model, 'test_batch') && isfield(model, 'X_test') && isfield(model, 'y_test')
+%                     model = record_batch(XLX, model.X_test, model.y_test, model, 'test');
+%                 end
+%                 tic();
+%             end
+%             break;
+%         end
     end
 
     model.weights = W;
