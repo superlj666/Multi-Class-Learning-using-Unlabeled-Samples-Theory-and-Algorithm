@@ -43,7 +43,7 @@ function errors_validate = cross_validation(L, X_train, y_train, model)
 
                     test_errs = zeros(n_folds, 1);
                     for i_fold = 1 : n_folds
-                        XLX = min(1,1 / (sqrt(para_I) * norm(folds_XLX{i_fold, 1},'fro'))) * folds_XLX{i_fold, 1};
+                        XLX = folds_XLX{i_fold, 1};
 
                         % training
                         i_model = model;
