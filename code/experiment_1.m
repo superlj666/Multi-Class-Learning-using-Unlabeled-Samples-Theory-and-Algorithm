@@ -67,9 +67,9 @@ function output(errs, data_name)
     fprintf(fid, '%s\t', data_name);
     for i = 1 : size(errs, 2)
         if i == loc_min
-            fprintf(fid, '&\\textbf{&%2.3f$\\pm$%.3f}\t', mean(errs(:, i)), std(errs(:, i)));
+            fprintf(fid, '&\\textbf{%2.3f$\\pm$%.3f}\t', mean(errs(:, i)), std(errs(:, i)));
         elseif t(i) < 1.676
-            fprintf(fid, '&\\underline{&%2.3f$\\pm$%.3f}\t', mean(errs(:, i)), std(errs(:, i)));
+            fprintf(fid, '&\\underline{%2.3f$\\pm$%.3f}\t', mean(errs(:, i)), std(errs(:, i)));
         else
             fprintf(fid,'&%2.3f$\\pm$%.3f\t', mean(errs(:, i)), std(errs(:, i)));
         end
