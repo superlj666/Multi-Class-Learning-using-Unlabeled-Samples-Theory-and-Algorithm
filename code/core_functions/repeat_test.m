@@ -10,7 +10,6 @@ function repeat_errors = repeat_test(model, model_name, X, y, L)
         idx_train = idx_train(randperm(numel(idx_train)));
 
         XLX = X(idx_train, :)' * L(idx_train, idx_train) * X(idx_train, :);
-        XLX = min(1, 1 / (sqrt(model.tau_I) * norm(XLX,'fro'))) * XLX;
 
         %idx_labeled = idx_train(1 : ceil(numel(idx_train) * model.rate_labeled));
         idx_labeled = idx_train(sampling_with_labels(y(idx_train), model.rate_labeled));
