@@ -1,10 +1,10 @@
 function parameter_observe(data_name)
     load(['../data/', data_name, '/', 'cross_validation.mat']);
 
-    model_linear = learner_linear(errors_validate, can_step, can_tau_S, can_tau_A, can_tau_I);
-    model_lrc = learner_lrc(errors_validate, can_step, can_tau_S, can_tau_A, can_tau_I);
-    model_ssl = learner_ssl(errors_validate, can_step, can_tau_S, can_tau_A, can_tau_I);
     model_lrc_ssl = learner_lrc_ssl(errors_validate, can_step, can_tau_S, can_tau_A, can_tau_I);
+    model_ssl = learner_ssl(errors_validate, can_step, can_tau_S, can_tau_A, can_tau_I);
+    model_lrc = learner_lrc(errors_validate, can_step, can_tau_S, can_tau_A, can_tau_I);
+    model_linear = learner_linear(errors_validate, can_step, can_tau_S, can_tau_A, can_tau_I);
 
     save(['../result/', data_name, '_models.mat'], 'model_lrc_ssl', 'model_ssl', 'model_lrc', 'model_linear');
 end
@@ -15,8 +15,8 @@ function model = learner_lrc_ssl(errors_validate, can_step, can_tau_S, can_tau_A
     cv_results(:, :, :, numel(can_tau_I)) = 1;
     [~, loc_best] = min(cv_results(:));
     [d1, d2, d3, d4] = ind2sub([numel(can_step), numel(can_tau_S), numel(can_tau_A), numel(can_tau_I)], loc_best);
-    fprintf('-----LRC_SSL: %.4f\t tau_I: %.0f\t tau_A: %.0f\t tau_S: %.0f\t step: %.1f-----\n', ...
-    errors_validate{loc_best, 1}, log(can_tau_I(d4))/log(2), log(can_tau_A(d3))/log(2), log(can_tau_S(d2))/log(2), log(can_step(d1))/log(2));
+    fprintf('-----LRC_SSL: %.4f\t tau_I: %s\t tau_A: %s\t tau_S: %s\t step: %.0f-----\n', ...
+    errors_validate{loc_best, 1}, num2str(can_tau_I(d4)), num2str(can_tau_A(d3)), num2str(can_tau_S(d2)), can_step(d1));
 
     model.tau_I = can_tau_I(d4);
     model.tau_A = can_tau_A(d3);
@@ -30,8 +30,8 @@ function model = learner_ssl(errors_validate, can_step, can_tau_S, can_tau_A, ca
     cv_results(:, :, :, numel(can_tau_I)) = 1;
     [~, loc_best] = min(cv_results(:));
     [d1, d2, d3, d4] = ind2sub([numel(can_step), numel(can_tau_S), numel(can_tau_A), numel(can_tau_I)], loc_best);
-    fprintf('-----SSL: %.4f\t tau_I: %.0f\t tau_A: %.0f\t tau_S: %.0f\t step: %.1f-----\n', ...
-    errors_validate{loc_best, 1}, log(can_tau_I(d4))/log(2), log(can_tau_A(d3))/log(2), log(can_tau_S(d2))/log(2), log(can_step(d1))/log(2));
+    fprintf('-----SSL: %.4f\t tau_I: %s\t tau_A: %s\t tau_S: %s\t step: %.0f-----\n', ...
+    errors_validate{loc_best, 1}, num2str(can_tau_I(d4)), num2str(can_tau_A(d3)), num2str(can_tau_S(d2)), can_step(d1));
 
     model.tau_I = can_tau_I(d4);
     model.tau_A = can_tau_A(d3);
@@ -45,8 +45,8 @@ function model = learner_lrc(errors_validate, can_step, can_tau_S, can_tau_A, ca
     cv_results(:, :, :, 1 : numel(can_tau_I) - 1) = 1;
     [~, loc_best] = min(cv_results(:));
     [d1, d2, d3, d4] = ind2sub([numel(can_step), numel(can_tau_S), numel(can_tau_A), numel(can_tau_I)], loc_best);
-    fprintf('-----LRC: %.4f\t tau_I: %.0f\t tau_A: %.0f\t tau_S: %.0f\t step: %.1f-----\n', ...
-    errors_validate{loc_best, 1}, log(can_tau_I(d4))/log(2), log(can_tau_A(d3))/log(2), log(can_tau_S(d2))/log(2), log(can_step(d1))/log(2));
+    fprintf('-----LRC: %.4f\t tau_I: %s\t tau_A: %s\t tau_S: %s\t step: %.0f-----\n', ...
+    errors_validate{loc_best, 1}, num2str(can_tau_I(d4)), num2str(can_tau_A(d3)), num2str(can_tau_S(d2)), can_step(d1));
 
     model.tau_I = can_tau_I(d4);
     model.tau_A = can_tau_A(d3);
@@ -60,11 +60,22 @@ function model = learner_linear(errors_validate, can_step, can_tau_S, can_tau_A,
     cv_results(:, :, :, 1 : numel(can_tau_I) - 1) = 1;
     [~, loc_best] = min(cv_results(:));
     [d1, d2, d3, d4] = ind2sub([numel(can_step), numel(can_tau_S), numel(can_tau_A), numel(can_tau_I)], loc_best);
-    fprintf('-----Linear: %.4f\t tau_I: %.0f\t tau_A: %.0f\t tau_S: %.0f\t step: %.1f-----\n', ...
-    errors_validate{loc_best, 1}, log(can_tau_I(d4))/log(2), log(can_tau_A(d3))/log(2), log(can_tau_S(d2))/log(2), log(can_step(d1))/log(2));
+    fprintf('-----Linear: %.4f\t tau_I: %s\t tau_A: %s\t tau_S: %s\t step: %.0f-----\n', ...
+    errors_validate{loc_best, 1}, num2str(can_tau_I(d4)), num2str(can_tau_A(d3)), num2str(can_tau_S(d2)), can_step(d1));
 
     model.tau_I = can_tau_I(d4);
     model.tau_A = can_tau_A(d3);
     model.tau_S = can_tau_S(d2);
     model.step = can_step(d1);
+end
+
+function model = learner_lrc_ssl_single(errors_validate, model)
+    cv_results = reshape([errors_validate{:, 1}], [numel(model.can_step), numel(model.can_tau_S), numel(model.can_tau_A), numel(model.can_tau_I)]);
+    [~, loc_best] = min(cv_results(:));
+    [d1, d2, d3, d4] = ind2sub([numel(model.can_step), numel(model.can_tau_S), numel(model.can_tau_A), numel(model.can_tau_I)], loc_best);
+
+    model.tau_I = model.can_tau_I(d4);
+    model.tau_A = model.can_tau_A(d3);
+    model.tau_S = model.can_tau_S(d2);
+    model.step = model.can_step(d1);
 end

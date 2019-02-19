@@ -1,42 +1,17 @@
-addpath('../libsvm/matlab/');
-addpath('./utils/');
-addpath('./core_functions/');
-clear;
-
-datasets = {
-'iris', ...
-'wine', ...
-'glass', ...
-'svmguide4', ...
-'svmguide2', ...
-'vowel', ...
-'vehicle', ...
-% 'dna', ...
-%'segment', ...
-% 'satimage', ...
-% 'pendigits', ...
-% 'usps', ...
-% 'letter', ...
-% 'poker', ...
-%'shuttle', ...
-%'Sensorless', ...
-%'protein', ...
-%'mnist', ...
-};
-
+initialization;
 for dataset = datasets
-    rng('default');
+    model.data_name = char(dataset);
     parameter_observe(char(dataset));
-    exp1_dataset(char(dataset));
+    exp1_dataset(char(dataset), model);
 end
 
-function exp1_dataset(data_name)
+function exp1_dataset(data_name, model)
     %% Choose parameters for our method
     load(['../result/', data_name, '_models.mat'], 'model_linear', 'model_lrc', 'model_ssl', 'model_lrc_ssl');
-    model_linear = model_initialization(data_name, model_linear);
-    model_lrc = model_initialization(data_name, model_lrc);
-    model_ssl = model_initialization(data_name, model_ssl);
-    model_lrc_ssl = model_initialization(data_name, model_lrc_ssl);
+    model_linear = model_combination(model, model_linear);
+    model_lrc = model_combination(model, model_lrc);
+    model_ssl = model_combination(model, model_ssl);
+    model_lrc_ssl = model_combination(model, model_lrc_ssl);
 
     % load datasets
     [X, y] = load_data(data_name);    
@@ -78,12 +53,3 @@ function output(errs, data_name)
     fclose(fid);
 end
 
-function model = model_initialization(data_name, model)    
-    model.data_name = data_name;
-    model.n_folds = 5;
-    model.n_repeats = 30;
-    model.rate_test = 0.3;
-    model.rate_labeled = 0.3;
-    model.n_batch = 32;
-    model.T = 50;
-end

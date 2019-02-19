@@ -54,9 +54,9 @@ function errors_validate = cross_validation(L, X_train, y_train, model)
                         test_errs(i_fold) = i_model.test_err(end);
                     end
 
-                    fprintf('Grid: %.0f/%.0f\t ERR: %.4f\t tau_I: %.4f\t tau_A: %.4f\t tau_S: %.4f\t step: %.4f\n', ...
+                    fprintf('Grid: %.0f/%.0f\t ERR: %.4f\t tau_I: %s\t tau_A: %s\t tau_S: %s\t step: %.0f\n', ...
                         counter, numel(can_tau_I) * numel(can_tau_A) * numel(can_tau_S) * numel(can_step), ...
-                        mean(test_errs), para_I, para_A, para_S, para_step);
+                        mean(test_errs), num2str(para_I), num2str(para_A), num2str(para_S), para_step)
                     errors_validate{counter, 1} = mean(test_errs);
                     errors_validate{counter, 2} = [para_I, para_A, para_S, para_step];
                     counter = counter + 1;
@@ -68,8 +68,8 @@ function errors_validate = cross_validation(L, X_train, y_train, model)
         
     [~, loc_best] = min([errors_validate{:, 1}]);
     [d1, d2, d3, d4] = ind2sub([numel(can_step), numel(can_tau_S), numel(can_tau_A), numel(can_tau_I)], loc_best);
-    fprintf('-----Best ERR: %.4f\t tau_I: %.8f\t tau_A: %.8f\t tau_S: %.8f\t step: %.8f\n-----\n', ...
-    errors_validate{loc_best, 1}, can_tau_I(d4), can_tau_A(d3), can_tau_S(d2), can_step(d1));
+    fprintf('-----Best ERR: %.4f\t tau_I: %s\t tau_A: %s\t tau_S: %s\t step: %.0f\n-----\n', ...
+    errors_validate{loc_best, 1}, num2str(can_tau_I(d4)), num2str(can_tau_A(d3)), num2str(can_tau_S(d2)), can_step(d1));
     save(['../data/', data_name, '/', 'cross_validation.mat']);
 
     % cv_results = reshape(errors_validate, [numel(can_tau_S), numel(can_tau_A), numel(can_tau_I)]);
