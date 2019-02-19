@@ -82,10 +82,12 @@ function model = ps3vt_multi_train(XLX, X_train, y_train, model)
             grad_g = grad_g ./ model.n_batch + 2 * model.tau_A  * W + 2 * model.tau_I * XLX * W;
         
             % update weight matrix
-            if norm(grad_g, 'fro') < 1e-6
-                continue;
-            end
+%             if norm(grad_g, 'fro') < 1e-6
+%                 continue;
+%             end
+            
             W = W - i_step * grad_g;
+            W = min(1, 1 / (sqrt(model.tau_A) * norm(W, 'fro'))) * W;
 
             % SVT with proximal gradient
             S = zeros(n_dimension, n_class);
@@ -98,7 +100,6 @@ function model = ps3vt_multi_train(XLX, X_train, y_train, model)
                 W = U * S * V';
             end
             model.S = S;
-            W = min(1, 1 / (1 * norm(W, 'fro'))) * W;
 
             if isfield(model, 'n_record_batch') && (mod(model.iter_batch, model.n_record_batch) == 0 ...
                 || (epoch == model.T && i_batch == ceil(n_sample / model.n_batch)))
@@ -115,7 +116,7 @@ function model = ps3vt_multi_train(XLX, X_train, y_train, model)
         %fprintf('#Batch : %5.0f(epoch %3.0f)\tAER : %2.2f\tAEL : %2.2f\tUpdates : %5.0f\n', ...
         %model.iter_batch, epoch, errTot / n_sample * 100, lossTot / n_sample, n_update);
 
-%         if norm(W-W_old, 'fro') / norm(W_old, 'fro')< 1e-4
+%         if norm(W-W_old, 'fro') / norm(W_old, 'fro') < 1e-4
 %             if isfield(model, 'n_record_batch') 
 %                 model.time_train = model.time_train + toc();
 %                 model.weights = W;

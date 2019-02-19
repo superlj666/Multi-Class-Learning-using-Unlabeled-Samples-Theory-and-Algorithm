@@ -4,8 +4,8 @@ addpath('./core_functions/');
 clear;
 
 datasets = {
-%'iris', ...
-%'wine', ...
+'iris', ...
+'wine', ...
 'glass', ...
 % 'svmguide4', ...
 % 'svmguide2', ...
@@ -26,7 +26,7 @@ datasets = {
 
 for dataset = datasets
     rng('default');
-    parameter_observe(char(dataset));
+    %parameter_observe(char(dataset));
     exp3_dataset(char(dataset));
     draw_sample_curve(char(dataset));
 end
@@ -72,6 +72,11 @@ function model = model_initialization(data_name, model)
     model.rate_test = 0.3;
     model.n_batch = 32;
     model.T = 50;
+    
+    model.tau_I = 0;%[2 .^ -(7:2:11), 0];
+    model.tau_A = 10^-7;%2 .^ -(3:4);
+    model.tau_S = 0;%[2 .^ -(5:2:9), 0];
+    model.step = 10^3;%2 .^ (3.5:0.5:4.5);
 end
 
 function draw_sample_curve(data_name)

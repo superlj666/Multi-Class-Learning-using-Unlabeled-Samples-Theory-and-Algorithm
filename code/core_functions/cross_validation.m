@@ -47,14 +47,11 @@ function errors_validate = cross_validation(L, X_train, y_train, model)
 
                         % training
                         i_model = model;
-                        i_model.n_record_batch = ceil(numel(folds_train_labeled{i_fold, 1}) / i_model.n_batch);
-                        i_model.test_batch = true;
-                        i_model.X_test = X_train(folds_validate{i_fold, 1}, :); 
-                        i_model.y_test = y_train(folds_validate{i_fold, 1});
                         i_model = ps3vt_multi_train(XLX, X_train(folds_train_labeled{i_fold, 1}, :), ...
                         y_train(folds_train_labeled{i_fold, 1}), i_model);
 
-                        test_errs(i_fold) = mean(i_model.test_err(end-4:end));
+                        i_model = record_batch(XLX, X_train(folds_validate{i_fold, 1}, :), y_train(folds_validate{i_fold, 1}), i_model, 'test');
+                        test_errs(i_fold) = i_model.test_err(end);
                     end
 
                     fprintf('Grid: %.0f/%.0f\t ERR: %.4f\t tau_I: %.4f\t tau_A: %.4f\t tau_S: %.4f\t step: %.4f\n', ...
@@ -71,7 +68,7 @@ function errors_validate = cross_validation(L, X_train, y_train, model)
         
     [~, loc_best] = min([errors_validate{:, 1}]);
     [d1, d2, d3, d4] = ind2sub([numel(can_step), numel(can_tau_S), numel(can_tau_A), numel(can_tau_I)], loc_best);
-    fprintf('-----Best ERR: %.4f\t tau_I: %.4f\t tau_A: %.4f\t tau_S: %.4f\t step: %.4f\n-----\n', ...
+    fprintf('-----Best ERR: %.4f\t tau_I: %.8f\t tau_A: %.8f\t tau_S: %.8f\t step: %.8f\n-----\n', ...
     errors_validate{loc_best, 1}, can_tau_I(d4), can_tau_A(d3), can_tau_S(d2), can_step(d1));
     save(['../data/', data_name, '/', 'cross_validation.mat']);
 
