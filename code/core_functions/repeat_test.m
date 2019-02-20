@@ -1,6 +1,4 @@
 function repeat_errors = repeat_test(model, model_name, X, y, L)    
-    % rng('default');
-
     test_models = cell(model.n_repeats, 1);
     for i_repeat = 1 : model.n_repeats
         idx_rand = randperm(numel(y));
@@ -26,7 +24,7 @@ function repeat_errors = repeat_test(model, model_name, X, y, L)
     end
     
     repeat_errors = cell2mat(test_models);
-    test_errs = mean(repeat_errors(:,end-4:end), 2);
+    test_errs = mean(repeat_errors(:,end-1:end), 2);
     fprintf('Dateset: %s\t Method: %s\t Mean: %.4f\t STD: %.4f\t tau_I: %s\t tau_A: %s\t tau_S: %s\t\n', ... 
         model.data_name, model_name, mean(test_errs), std(test_errs), num2str(model.tau_I), num2str(model.tau_A), num2str(model.tau_S));
 end

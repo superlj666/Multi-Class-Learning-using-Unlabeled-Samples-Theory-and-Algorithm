@@ -42,7 +42,7 @@ function model = ps3vt_multi_train(XLX, X_train, y_train, model)
     if ~isfield(model, 'epoch'), model.epoch = 0; end
     if ~isfield(model, 'time_train'), model.time_train = 0; end
  
-    W = rand(n_dimension, n_class);
+    W = zeros(n_dimension, n_class);
     
     for epoch = 1 : model.T
         model.epoch = model.epoch + 1;
