@@ -12,7 +12,7 @@ function exp1_dataset(data_name, model)
     model_lrc = model_combination(model, model_lrc);
     model_ssl = model_combination(model, model_ssl);
     model_lrc_ssl = model_combination(model, model_lrc_ssl);
-
+    
     % load datasets
     [X, y] = load_data(data_name);    
     L = construct_laplacian_graph(data_name, X, 10);
@@ -53,3 +53,11 @@ function output(errs, data_name)
     fclose(fid);
 end
 
+function [model_linear, model_lrc, model_ssl, model_lrc_ssl]=parameter_choose (model)
+        model_linear.tau_A = 1e-7;
+        model_linear.tau_I = 1e-7;
+        model_linear.tau_S = 1e-5;
+        model_lrc
+        model_ssl
+        model_lrc_ssl
+end
