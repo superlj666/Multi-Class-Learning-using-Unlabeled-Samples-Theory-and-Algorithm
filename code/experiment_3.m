@@ -30,10 +30,10 @@ function exp3_dataset(data_name, model)
         ssl_errs = repeat_test(model_ssl, 'ssl', X, y, L);
         lrc_ssl_errs = repeat_test(model_lrc_ssl, 'lrc_ssl', X, y, L);
         
-        errs_partition(1, i_partition, :) = mean(linear_errs(:,end-4:end), 2);
-        errs_partition(2, i_partition, :) = mean(lrc_errs(:,end-4:end), 2);
-        errs_partition(3, i_partition, :) = mean(ssl_errs(:,end-4:end), 2);
-        errs_partition(4, i_partition, :) = mean(lrc_ssl_errs(:,end-4:end), 2);
+        errs_partition(1, i_partition, :) = mean(linear_errs, 2);
+        errs_partition(2, i_partition, :) = mean(lrc_errs, 2);
+        errs_partition(3, i_partition, :) = mean(ssl_errs, 2);
+        errs_partition(4, i_partition, :) = mean(lrc_ssl_errs, 2);
     end
     
     save(['../result/exp3/', data_name, '_errs_partition.mat'], ...
