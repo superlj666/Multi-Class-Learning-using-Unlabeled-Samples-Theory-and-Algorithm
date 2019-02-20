@@ -26,7 +26,7 @@ function model = ps3vt_multi_train(XLX, X_train, y_train, model)
     %   Date : 2019 / 02 / 05  
     %
     tic();
-    % rng('default');
+    %rng('default');
 
     n_dimension = size(X_train, 2);
     n_class = max(y_train);

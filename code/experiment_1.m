@@ -6,31 +6,75 @@ for dataset = datasets
 end
 
 function exp1_dataset(data_name, model)
-    %% Choose parameters for our method
-    load(['../result/', data_name, '_models.mat'], 'model_linear', 'model_lrc', 'model_ssl', 'model_lrc_ssl');
-    model_linear = model_combination(model, model_linear);
-    model_lrc = model_combination(model, model_lrc);
-    model_ssl = model_combination(model, model_ssl);
-    model_lrc_ssl = model_combination(model, model_lrc_ssl);
-    
-    % load datasets
-    [X, y] = load_data(data_name);    
-    L = construct_laplacian_graph(data_name, X, 10);
+%% Choose parameters for our method
+load(['../result/', data_name, '_models.mat'], 'model_linear', 'model_lrc', 'model_ssl', 'model_lrc_ssl');
 
-    %% training and testing
-    lrc_ssl_errs = repeat_test(model_lrc_ssl, 'lrc_ssl', X, y, L);
-    ssl_errs = repeat_test(model_ssl, 'ssl', X, y, L);
-    lrc_errs = repeat_test(model_lrc, 'lrc', X, y, L);
-    linear_errs = repeat_test(model_linear, 'linear', X, y, L);
-    save(['../result/', data_name, '_results.mat'], ...
-        'linear_errs', 'lrc_errs', 'ssl_errs', 'lrc_ssl_errs');
+% load datasets
+[X, y] = load_data(data_name);
+L = construct_laplacian_graph(data_name, X, 10);
+
+test_all_errs = cell(4, model.n_repeats);
+test_errs = zeros(4, model.n_repeats);
+for i_repeat = 1 : model.n_repeats
+    idx_rand = randperm(numel(y));
+    % take use of Laplacian matrix
+    idx_test = idx_rand(1:ceil(model.rate_test * numel(y)));
+    idx_train = setdiff(idx_rand, idx_test);
+    idx_train = idx_train(randperm(numel(idx_train)));
+
+    XLX = X(idx_train, :)' * L(idx_train, idx_train) * X(idx_train, :);
+    idx_labeled = idx_train(sampling_with_labels(y(idx_train), model.rate_labeled));  
+
+    X_train = X(idx_labeled, :); 
+    y_train = y(idx_labeled);
+    X_test = X(idx_test, :);
+    y_test = y(idx_test);
     
-    errs = [mean(linear_errs(:,end-4:end), 2), mean(lrc_errs(:,end-4:end), 2), mean(ssl_errs(:,end-4:end), 2), mean(lrc_ssl_errs(:,end-4:end), 2)];
-    output(errs, data_name);
+    i_model = model;
+    i_model.n_record_batch = 1 : ceil(numel(idx_labeled) / i_model.n_batch) * model.T;
+    i_model.test_batch = true;
+    i_model.X_test = X_test;
+    i_model.y_test = y_test;
+    
+    model_lrc_ssl = model_combination(i_model, model_lrc_ssl);
+    model_ssl = model_combination(i_model, model_ssl);
+    model_lrc = model_combination(i_model, model_lrc);
+    model_linear = model_combination(i_model, model_linear);
+    
+    model_lrc_ssl = ps3vt_multi_train(XLX, X_train, y_train, model_lrc_ssl);
+    model_ssl = ps3vt_multi_train(XLX, X_train, y_train, model_ssl);
+    model_lrc = ps3vt_multi_train(XLX, X_train, y_train, model_lrc);
+    model_linear = ps3vt_multi_train(XLX, X_train, y_train, model_linear);
+    
+    test_all_errs{1, i_repeat} = model_lrc_ssl.test_err;
+    test_all_errs{2, i_repeat} = model_ssl.test_err;
+    test_all_errs{3, i_repeat} = model_lrc.test_err;
+    test_all_errs{4, i_repeat} = model_linear.test_err;
+    
+    test_errs(1, i_repeat) = mean(model_lrc_ssl.test_err(1, end-99 : end));
+    test_errs(2, i_repeat) = mean(model_ssl.test_err(1, end-99 : end));
+    test_errs(3, i_repeat) = mean(model_lrc.test_err(1, end-99 : end));
+    test_errs(4, i_repeat) = mean(model_linear.test_err(1, end-99 : end));
+end
+
+output(test_errs, data_name);
+
+fprintf('Dateset: %s\t Method: model_lrc_ssl\t Mean: %.4f\t STD: %.4f\t tau_I: %s\t tau_A: %s\t tau_S: %s\t step: %.0f\t\n', ...
+    model.data_name, mean(test_errs(1, :)), std(test_errs(1, :)), num2str(model_lrc_ssl.tau_I), num2str(model_lrc_ssl.tau_A), num2str(model_lrc_ssl.tau_S), model_lrc_ssl.step);
+fprintf('Dateset: %s\t Method: model_ssl\t Mean: %.4f\t STD: %.4f\t tau_I: %s\t tau_A: %s\t tau_S:  %s\t step: %.0f\t\n', ...
+    model.data_name, mean(test_errs(2, :)), std(test_errs(2, :)), num2str(model_ssl.tau_I), num2str(model_ssl.tau_A), num2str(model_ssl.tau_S), model_ssl.step);
+fprintf('Dateset: %s\t Method: model_lrc\t Mean: %.4f\t STD: %.4f\t tau_I: %s\t tau_A: %s\t tau_S:  %s\t step: %.0f\t\n', ...
+    model.data_name, mean(test_errs(3, :)), std(test_errs(3, :)), num2str(model_lrc.tau_I), num2str(model_lrc.tau_A), num2str(model_lrc.tau_S), model_lrc.step);
+fprintf('Dateset: %s\t Method: model_linear\t Mean: %.4f\t STD: %.4f\t tau_I: %s\t tau_A: %s\t tau_S:  %s\t step: %.0f\t\n', ...
+    model.data_name, mean(test_errs(4, :)), std(test_errs(4, :)), num2str(model_linear.tau_I), num2str(model_linear.tau_A), num2str(model_linear.tau_S), model_linear.step);
+
+errors_matrix = cell_matrix(test_all_errs);
+save(['../result/', data_name, '_results.mat'], ...
+    'errors_matrix');
 end
 
 function output(errs, data_name)
-    errs = errs .* 100;
+    errs = errs' .* 100;
 
     [~, loc_min] = min(mean(errs));
     d = errs - errs(:, loc_min);
@@ -42,22 +86,28 @@ function output(errs, data_name)
     fprintf(fid, '%s\t', data_name);
     for i = 1 : size(errs, 2)
         if i == loc_min
-            fprintf(fid, '&\\textbf{%2.3f$\\pm$%.3f}\t', mean(errs(:, i)), std(errs(:, i)));
+            fprintf(fid, '&\\textbf{%2.2f$\\pm$%.2f}\t', mean(errs(:, i)), std(errs(:, i)));
         elseif t(i) < 1.676
-            fprintf(fid, '&\\underline{%2.3f$\\pm$%.3f}\t', mean(errs(:, i)), std(errs(:, i)));
+            fprintf(fid, '&\\underline{%2.2f$\\pm$%.2f}\t', mean(errs(:, i)), std(errs(:, i)));
         else
-            fprintf(fid,'&%2.3f$\\pm$%.3f\t', mean(errs(:, i)), std(errs(:, i)));
+            fprintf(fid,'&%2.2f$\\pm$%.2f\t', mean(errs(:, i)), std(errs(:, i)));
         end
     end
     fprintf(fid, '\\\\\n');
     fclose(fid);
 end
 
-function [model_linear, model_lrc, model_ssl, model_lrc_ssl]=parameter_choose (model)
-        model_linear.tau_A = 1e-7;
-        model_linear.tau_I = 1e-7;
-        model_linear.tau_S = 1e-5;
-        model_lrc
-        model_ssl
-        model_lrc_ssl
+function errors_matrix = cell_matrix(errors_cell)
+    length_min = Inf;
+    for i_row = 1 : size(errors_cell, 1)
+        for i_column = 1 : size(errors_cell, 2)
+            length_min = min(length_min, numel(errors_cell{i_row, i_column}));
+        end
+    end
+    errors_matrix = zeros(size(errors_cell, 1), size(errors_cell, 2), length_min);
+    for i_row = 1 : size(errors_cell, 1)
+        for i_column = 1 : size(errors_cell, 2)
+            errors_matrix(i_row, i_column, :) = errors_cell{i_row, i_column}(1 : length_min);
+        end
+    end
 end
