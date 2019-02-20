@@ -101,7 +101,7 @@ function model = ps3vt_multi_train(XLX, X_train, y_train, model)
             end
             model.S = S;
 
-            if isfield(model, 'n_record_batch') && (mod(model.iter_batch, model.n_record_batch) == 0 ...
+            if isfield(model, 'n_record_batch') && (ismember(model.iter_batch, model.n_record_batch) ...
                 || (epoch == model.T && i_batch == ceil(n_sample / model.n_batch)))
                 model.time_train = model.time_train + toc();
                 model.weights = W;

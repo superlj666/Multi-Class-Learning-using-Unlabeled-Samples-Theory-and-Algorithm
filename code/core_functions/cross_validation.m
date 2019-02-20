@@ -47,11 +47,18 @@ function errors_validate = cross_validation(L, X_train, y_train, model)
 
                         % training
                         i_model = model;
-                        i_model = ps3vt_multi_train(XLX, X_train(folds_train_labeled{i_fold, 1}, :), ...
-                        y_train(folds_train_labeled{i_fold, 1}), i_model);
+                        i_model.n_record_batch = (ceil(numel(folds_train_labeled{i_fold, 1}) / i_model.n_batch) * model.T - 4) : ceil(numel(folds_train_labeled{i_fold, 1}) / i_model.n_batch) * model.T;
+                        i_model.test_batch = true;
+                        i_model.X_test = X_train(folds_validate{i_fold, 1}, :);
+                        i_model.y_test = y_train(folds_validate{i_fold, 1});
+                        i_model = ps3vt_multi_train(XLX, X_train(folds_train_labeled{i_fold, 1}, :), y_train(folds_train_labeled{i_fold, 1}), i_model);
+                        test_errs(i_fold) = mean(i_model.test_err);
 
-                        i_model = record_batch(XLX, X_train(folds_validate{i_fold, 1}, :), y_train(folds_validate{i_fold, 1}), i_model, 'test');
-                        test_errs(i_fold) = i_model.test_err(end);
+                        % i_model = model;
+                        % i_model = ps3vt_multi_train(XLX, X_train(folds_train_labeled{i_fold, 1}, :), ...
+                        % y_train(folds_train_labeled{i_fold, 1}), i_model);
+                        % i_model = record_batch(XLX, X_train(folds_validate{i_fold, 1}, :), y_train(folds_validate{i_fold, 1}), i_model, 'test');                        
+                        % test_errs(i_fold) = i_model.test_err(end);
                     end
 
                     fprintf('Grid: %.0f/%.0f\t ERR: %.4f\t tau_I: %s\t tau_A: %s\t tau_S: %s\t step: %.0f\n', ...
