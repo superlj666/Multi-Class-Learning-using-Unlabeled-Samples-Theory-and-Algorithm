@@ -44,6 +44,7 @@ function model = ps3vt_multi_train(XLX, X_train, y_train, model)
  
     W = zeros(n_dimension, n_class);
     
+    converge = false;
     for epoch = 1 : model.T
         model.epoch = model.epoch + 1;
         idx_rand = randperm(n_sample);
@@ -51,12 +52,11 @@ function model = ps3vt_multi_train(XLX, X_train, y_train, model)
         errTot = 0;
         lossTot = 0;
         n_update = 0;
-
+        
         for i_batch = 1 : ceil(n_sample / model.n_batch)
             grad_g = zeros(n_dimension, n_class);
             model.iter_batch = model.iter_batch + 1;
             i_step = model.step / (model.iter_batch +  n_sample);
-            W_old = W;
             
             for i_sample = (i_batch - 1) * model.n_batch + 1 : min(i_batch * model.n_batch, n_sample)
                 i_idx = idx_rand(i_sample);
@@ -80,11 +80,6 @@ function model = ps3vt_multi_train(XLX, X_train, y_train, model)
             end
             % update gradient for every batch
             grad_g = grad_g ./ model.n_batch + 2 * model.tau_A  * W + 2 * model.tau_I * XLX * W;
-        
-            % update weight matrix
-%             if norm(grad_g, 'fro') < 1e-6
-%                 continue;
-%             end
             
             W = W - i_step * grad_g;
             W = min(1, 1 / (sqrt(model.tau_A) * norm(W, 'fro'))) * W;
@@ -111,23 +106,29 @@ function model = ps3vt_multi_train(XLX, X_train, y_train, model)
                 end
                 tic();
             end
+            % early stop only controled by test error
+            if isfield(model, 'test_batch') && model.iter_batch > 0.5 * ceil(n_sample / model.n_batch) ... 
+                && numel(model.test_err) > 5 && numel(unique(model.test_err(end - 5 : end))) == 1
+                if isfield(model, 'n_record_batch') 
+                    model.time_train = model.time_train + toc();
+                    model.weights = W;
+                    model = record_batch(XLX, X_train, y_train, model, 'train');
+                    if isfield(model, 'test_batch') && isfield(model, 'X_test') && isfield(model, 'y_test')
+                        model = record_batch(XLX, model.X_test, model.y_test, model, 'test');
+                    end
+                    tic();
+                end
+                converge = true;
+                break;
+            end
         end
 
         %fprintf('#Batch : %5.0f(epoch %3.0f)\tAER : %2.2f\tAEL : %2.2f\tUpdates : %5.0f\n', ...
         %model.iter_batch, epoch, errTot / n_sample * 100, lossTot / n_sample, n_update);
+        if converge == true
+            break;
+        end
 
-%         if norm(W-W_old, 'fro') / norm(W_old, 'fro') < 1e-4
-%             if isfield(model, 'n_record_batch') 
-%                 model.time_train = model.time_train + toc();
-%                 model.weights = W;
-%                 model = record_batch(XLX, X_train, y_train, model, 'train');
-%                 if isfield(model, 'test_batch') && isfield(model, 'X_test') && isfield(model, 'y_test')
-%                     model = record_batch(XLX, model.X_test, model.y_test, model, 'test');
-%                 end
-%                 tic();
-%             end
-%             break;
-%         end
     end
 
     model.weights = W;

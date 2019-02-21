@@ -5,6 +5,7 @@ clear;
 rng('default');
 
 datasets = {
+<<<<<<< HEAD
 'iris', ...
 'wine', ...
 'glass', ...
@@ -28,7 +29,7 @@ model.n_repeats = 30;
 model.rate_test = 0.3;
 model.rate_labeled = 0.3;
 model.n_batch = 1;
-model.T = 30;
+model.T = 100;
 model.can_tau_I = [10.^(-9:-7), 0];
 model.can_tau_A = 10.^-(7:2:11);
 model.can_tau_S = [10.^-(3:2:7), 0];
