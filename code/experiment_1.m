@@ -31,6 +31,7 @@ for i_repeat = 1 : model.n_repeats
     y_test = y(idx_test);
     
     i_model = model;
+    %i_model.n_record_batch = 1 : floor(numel(idx_labeled) / i_model.n_batch * model.T /30) : ceil(numel(idx_labeled) / i_model.n_batch) * model.T;
     i_model.n_record_batch = 1 : 100 : ceil(numel(idx_labeled) / i_model.n_batch) * model.T;
     i_model.test_batch = true;
     i_model.X_test = X_test;
@@ -51,10 +52,10 @@ for i_repeat = 1 : model.n_repeats
     test_all_errs{3, i_repeat} = model_lrc.test_err;
     test_all_errs{4, i_repeat} = model_linear.test_err;
     
-    test_errs(1, i_repeat) = mean(model_lrc_ssl.test_err(1, end - 5 : end));
-    test_errs(2, i_repeat) = mean(model_ssl.test_err(1, end - 5 : end));
-    test_errs(3, i_repeat) = mean(model_lrc.test_err(1, end - 5 : end));
-    test_errs(4, i_repeat) = mean(model_linear.test_err(1, end - 5 : end));
+    test_errs(1, i_repeat) = mean(model_lrc_ssl.test_err(1, end - min(5, length(model_lrc_ssl.test_err) - 1): end));
+    test_errs(2, i_repeat) = mean(model_ssl.test_err(1, end - min(5, length(model_ssl.test_err) - 1): end));
+    test_errs(3, i_repeat) = mean(model_lrc.test_err(1, end - min(5, length(model_lrc.test_err) - 1): end));
+    test_errs(4, i_repeat) = mean(model_linear.test_err(1, end - min(5, length(model_linear.test_err) - 1): end));
 end
 
 output(test_errs, data_name);
@@ -98,16 +99,20 @@ function output(errs, data_name)
 end
 
 function errors_matrix = cell_matrix(errors_cell)
-    length_min = Inf;
+    length_max = -Inf;
     for i_row = 1 : size(errors_cell, 1)
         for i_column = 1 : size(errors_cell, 2)
-            length_min = min(length_min, numel(errors_cell{i_row, i_column}));
+            length_max = max(length_max, numel(errors_cell{i_row, i_column}));
         end
     end
-    errors_matrix = zeros(size(errors_cell, 1), size(errors_cell, 2), length_min);
+    errors_matrix = zeros(size(errors_cell, 1), size(errors_cell, 2), length_max);
     for i_row = 1 : size(errors_cell, 1)
         for i_column = 1 : size(errors_cell, 2)
-            errors_matrix(i_row, i_column, :) = errors_cell{i_row, i_column}(1 : length_min);
+            length_cur = length(errors_cell{i_row, i_column});
+            errors_matrix(i_row, i_column, 1 : length_cur) = errors_cell{i_row, i_column};
+            if length_cur < length_max
+                errors_matrix(i_row, i_column, length_cur + 1 : length_max) = errors_matrix(i_row, i_column, length_cur);
+            end
         end
     end
 end

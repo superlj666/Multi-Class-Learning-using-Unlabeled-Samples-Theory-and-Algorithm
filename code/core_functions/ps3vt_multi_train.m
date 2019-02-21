@@ -40,7 +40,7 @@ function model = ps3vt_multi_train(XLX, X_train, y_train, model)
     if ~isfield(model, 'T'), model.T = 30; end
     if ~isfield(model, 'iter_batch'), model.iter_batch = 0; end
     if ~isfield(model, 'epoch'), model.epoch = 0; end
-    if ~isfield(model, 'time_train'), model.time_train = 0; end
+    if ~isfield(model, 'time_train'), model.time_train = 0; end    
  
     W = zeros(n_dimension, n_class);
     
@@ -108,7 +108,8 @@ function model = ps3vt_multi_train(XLX, X_train, y_train, model)
             end
             % early stop only controled by test error
             if isfield(model, 'test_batch') && model.iter_batch > 0.5 * ceil(n_sample / model.n_batch) ... 
-                && numel(model.test_err) > 5 && numel(unique(model.test_err(end - 5 : end))) == 1
+                && isfield(model, 'test_err') && numel(model.test_err) > 5 ...
+                && numel(unique(model.test_err(end - min(5, model.test_err - 1) : end))) == 1
                 if isfield(model, 'n_record_batch') 
                     model.time_train = model.time_train + toc();
                     model.weights = W;
