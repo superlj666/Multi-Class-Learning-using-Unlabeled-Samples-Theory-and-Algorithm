@@ -47,7 +47,7 @@ function errors_validate = cross_validation(L, X_train, y_train, model)
 
                         % training
                         i_model = model;
-                        i_model.n_record_batch = (ceil(numel(folds_train_labeled{i_fold, 1}) / i_model.n_batch) * model.T - 4) : ceil(numel(folds_train_labeled{i_fold, 1}) / i_model.n_batch) * model.T;
+                        i_model.n_record_batch = (ceil(numel(folds_train_labeled{i_fold, 1}) / i_model.n_batch) * model.T - 99) : ceil(numel(folds_train_labeled{i_fold, 1}) / i_model.n_batch) * model.T;
                         i_model.test_batch = true;
                         i_model.X_test = X_train(folds_validate{i_fold, 1}, :);
                         i_model.y_test = y_train(folds_validate{i_fold, 1});
@@ -66,8 +66,7 @@ function errors_validate = cross_validation(L, X_train, y_train, model)
                         mean(test_errs), num2str(para_I), num2str(para_A), num2str(para_S), para_step)
                     errors_validate{counter, 1} = mean(test_errs);
                     errors_validate{counter, 2} = [para_I, para_A, para_S, para_step];
-                    counter = counter + 1;
-                    
+                    counter = counter + 1;                    
                 end
             end
         end

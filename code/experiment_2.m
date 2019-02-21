@@ -5,9 +5,9 @@ end
 
 function exp2_dataset(data_name)    
     %% Choose parameters for our method
-    load(['../result/', data_name, '_results.mat'], 'test_errs');
+    load(['../result/', data_name, '_results.mat'], 'errors_matrix');
     file_path = ['../result/exp2/', data_name];
-    error_curve_save(file_path, mean(test_errs(4,:,:), 2), mean(test_errs(3,:,:), 2), mean(test_errs(2,:,:), 2), mean(test_errs(1,:,:), 2));
+    error_curve_save(file_path, mean(errors_matrix(4,:,:), 2), mean(errors_matrix(3,:,:), 2), mean(errors_matrix(2,:,:), 2), mean(errors_matrix(1,:,:), 2));
 end
 
 function error_curve_save(file_path, linear_errs, lrc_errs, ssl_errs, lrc_ssl_errs)
