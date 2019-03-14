@@ -2,8 +2,8 @@ initialization;
 for dataset = datasets
     rng('default');
     model.data_name = char(dataset);
-    exp3_dataset(char(dataset), model);
-    draw_sample_curve(char(dataset));
+    %exp3_dataset(char(dataset), model);
+    draw_sample_curve1(char(dataset));
 end
 
 function exp3_dataset(data_name, model)
@@ -40,6 +40,43 @@ function exp3_dataset(data_name, model)
     'errs_partition');
 end
 
+function draw_sample_curve1(data_name)
+    load(['../result/exp3/', data_name, '_errs_partition.mat'], 'errs_partition');
+    errs_partition = errs_partition*100;
+    lrc_ssl_errs_mean = mean(errs_partition(1, :, :), 3);
+    ssl_errs_mean = mean(errs_partition(2, :, :), 3);
+    lrc_errs_mean = mean(errs_partition(3, :, :), 3);
+    linear_errs_mean = mean(errs_partition(4, :, :), 3);
+    
+
+    fig=figure;
+    x_list=1:9;
+    plot(x_list, linear_errs_mean, '-o','LineWidth',1);
+    hold on;
+    plot(x_list, lrc_errs_mean,'-.^','LineWidth',1);
+    plot(x_list, ssl_errs_mean,'--x','LineWidth',1);
+    plot(x_list, lrc_ssl_errs_mean,'-*','LineWidth',1);
+%     max_level=max(lrc_ssl_errs_mean);
+%     min_level=min(linear_errs_mean);
+%     step=max_level-min_level;
+    
+    xticklabels({'20', '30', '40', '50' ,'60', '70', '80', '90', '100'});
+    grid on
+%     set(gca,'XLim',[0.5 7.5])
+%     set(gca,'YLim',[min_level-0.5*step max_level+1.2*step])
+    set(gca,'YLim',[5, 13]);
+    set(gca,'yTick',[5:1:13]);
+    set(gca,'XLim',[1 9]);
+    set(gca,'xTick',[1:1:9])
+    legend({ 'Linear-MC','LRC-MC', 'SS-MC', 'PS3VT'}, 'FontSize',12);
+    ylabel('Error Rate(%)');
+    xlabel('Labeled Samples Rate (%)');
+    set(gca,'FontSize',20,'Fontname', 'Times New Roman');
+    hold off;
+
+    print(fig,['../result/exp3/', data_name],'-depsc')
+end
+
 function draw_sample_curve(data_name)
     load(['../result/exp3/', data_name, '_errs_partition.mat'], 'errs_partition');
     linear_errs_mean = mean(errs_partition(1, :, :), 3);
@@ -60,11 +97,11 @@ function draw_sample_curve(data_name)
 
     fig=figure;
     x_list=1:9;
-    errorbar(x_list, linear_errs_mean, linear_errs_std, 'k--o','LineWidth',1);
+    errorbar(x_list, lrc_ssl_errs_mean, lrc_ssl_errs_std,'-*','LineWidth',1);
     hold on;
-    errorbar(x_list, lrc_errs_mean, lrc_errs_std,'b-.^','LineWidth',1);
-    errorbar(x_list, ssl_errs_mean, ssl_errs_std,'r-x','LineWidth',1);
-    errorbar(x_list, lrc_ssl_errs_mean, lrc_ssl_errs_std,'g-*','LineWidth',1);
+    errorbar(x_list, lrc_errs_mean, lrc_errs_std,'-.^','LineWidth',1);
+    errorbar(x_list, ssl_errs_mean, ssl_errs_std,'-x','LineWidth',1);
+    errorbar(x_list, linear_errs_mean, linear_errs_std, '--o','LineWidth',1);
 
 %     max_level=max(lrc_ssl_errs_mean);
 %     min_level=min(linear_errs_mean);
@@ -74,7 +111,7 @@ function draw_sample_curve(data_name)
     grid on
 %     set(gca,'XLim',[0.5 7.5])
 %     set(gca,'YLim',[min_level-0.5*step max_level+1.2*step])
-    legend({'Ours', 'LRC-MC', 'SS-MC', 'Linear-MC'}, 'FontSize',12);
+    legend({'PS3VT', 'SS-MC','LRC-MC', 'Linear-MC'}, 'FontSize',12);
     ylabel('Error Rate(%)');
     xlabel('%# Labeled Samples');
     set(gca,'FontSize',20,'Fontname', 'Times New Roman');
@@ -82,3 +119,9 @@ function draw_sample_curve(data_name)
 
     print(fig,['../result/exp3/', data_name],'-depsc')
 end
+% 
+% experiment_3
+% linear_errs_mean = errs_partition(4, :);
+% lrc_errs_mean = errs_partition(3, :);
+% ssl_errs_mean = errs_partition(2, :);
+% lrc_ssl_errs_mean = errs_partition(1, :);

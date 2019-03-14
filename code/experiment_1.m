@@ -32,7 +32,7 @@ for i_repeat = 1 : model.n_repeats
     
     i_model = model;
     %i_model.n_record_batch = 1 : floor(numel(idx_labeled) / i_model.n_batch * model.T /30) : ceil(numel(idx_labeled) / i_model.n_batch) * model.T;
-    i_model.n_record_batch = 1 : 100 : ceil(numel(idx_labeled) / i_model.n_batch) * model.T;
+    i_model.n_record_batch = 1 : floor(numel(idx_labeled) / i_model.n_batch * model.T /30) : ceil(numel(idx_labeled) / i_model.n_batch) * model.T;
     i_model.test_batch = true;
     i_model.X_test = X_test;
     i_model.y_test = y_test;
