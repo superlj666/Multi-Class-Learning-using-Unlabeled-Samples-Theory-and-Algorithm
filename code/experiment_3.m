@@ -49,13 +49,13 @@ function draw_sample_curve1(data_name)
     linear_errs_mean = mean(errs_partition(4, :, :), 3);
     
 
-    fig=figure;
+    fig=figure('Position', [100, 100, 850, 600]);
     x_list=1:9;
-    plot(x_list, linear_errs_mean, '-o','LineWidth',1);
+    plot(x_list, linear_errs_mean, '-o','MarkerSize', 10,'LineWidth',3.5);
     hold on;
-    plot(x_list, lrc_errs_mean,'-.^','LineWidth',1);
-    plot(x_list, ssl_errs_mean,'--x','LineWidth',1);
-    plot(x_list, lrc_ssl_errs_mean,'-*','LineWidth',1);
+    plot(x_list, lrc_errs_mean,'-.^','MarkerSize', 10,'LineWidth',3.5);
+    plot(x_list, ssl_errs_mean,'--x','MarkerSize', 10,'LineWidth',3.5, 'Color', 'black');
+    plot(x_list, lrc_ssl_errs_mean,'-*','MarkerSize', 10,'LineWidth',3.5);
 %     max_level=max(lrc_ssl_errs_mean);
 %     min_level=min(linear_errs_mean);
 %     step=max_level-min_level;
@@ -68,10 +68,10 @@ function draw_sample_curve1(data_name)
     set(gca,'yTick',[5:1:13]);
     set(gca,'XLim',[1 9]);
     set(gca,'xTick',[1:1:9])
-    legend({ 'Linear-MC','LRC-MC', 'SS-MC', 'PS3VT'}, 'FontSize',12);
+    legend({ 'Linear-MC','LRC-MC', 'SS-MC', 'PS3VT'}, 'FontSize',40);
     ylabel('Error Rate(%)');
     xlabel('Labeled Samples Rate (%)');
-    set(gca,'FontSize',20,'Fontname', 'Times New Roman');
+    set(gca,'FontSize',40,'Fontname', 'Times New Roman');
     hold off;
 
     print(fig,['../result/exp3/', data_name],'-depsc')
