@@ -1,5 +1,5 @@
 function [X, y] = load_data(data_name)
-    dataset_path = ['../datasets/', data_name];
+    dataset_path = ['E:/Datasets/', data_name];
     [y, X] = libsvmread(dataset_path);
 
     % regularize labels to 1..C    

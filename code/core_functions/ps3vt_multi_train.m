@@ -56,7 +56,6 @@ function model = ps3vt_multi_train(XLX, X_train, y_train, model)
         for i_batch = 1 : ceil(n_sample / model.n_batch)
             grad_g = zeros(n_dimension, n_class);
             model.iter_batch = model.iter_batch + 1;
-            i_step = model.step / (model.iter_batch +  n_sample);
             
             for i_sample = (i_batch - 1) * model.n_batch + 1 : min(i_batch * model.n_batch, n_sample)
                 i_idx = idx_rand(i_sample);
@@ -81,6 +80,7 @@ function model = ps3vt_multi_train(XLX, X_train, y_train, model)
             % update gradient for every batch
             grad_g = grad_g ./ model.n_batch + 2 * model.tau_A  * W + 2 * model.tau_I * XLX * W;
             
+            i_step = model.step / (model.iter_batch +  n_sample);
             W = W - i_step * grad_g;
             W = min(1, 1 / (sqrt(model.tau_A) * norm(W, 'fro'))) * W;
 
