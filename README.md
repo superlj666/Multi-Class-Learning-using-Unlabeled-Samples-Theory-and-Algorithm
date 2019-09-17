@@ -1,6 +1,6 @@
 # Multi-Class Learning using Unlabeled Samples: Theory and Algorithm
-Code for experiments in "Multi-Class Learning using Unlabeled Samples: Theory and Algorithm".
-The paper has been accepted by IJCAI-19.
+Code for experiments in "Multi-Class Learning using Unlabeled Samples: Theory and Algorithm" (https://www.ijcai.org/proceedings/2019/0399.pdf).
+The paper has been published in IJCAI-19.
 
 ## Structure
 - ./data/: Store parameter tuning results.
@@ -15,5 +15,3 @@ The paper has been accepted by IJCAI-19.
 
 ## Steps
 Just run experiment_*.m individually.
-
-## 

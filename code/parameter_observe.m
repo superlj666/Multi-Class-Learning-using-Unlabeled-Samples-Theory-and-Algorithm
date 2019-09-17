@@ -18,7 +18,7 @@ function model = learner_lrc_ssl(errors_validate, can_step, can_tau_S, can_tau_A
     fprintf('-----LRC_SSL: %.4f\t tau_I: %s\t tau_A: %s\t tau_S: %s\t step: %.0f-----\n', ...
     errors_validate{loc_best, 1}, num2str(can_tau_I(d4)), num2str(can_tau_A(d3)), num2str(can_tau_S(d2)), can_step(d1));
 
-    model.tau_I = can_tau_I(d4);
+    model.tau_I = can_tau_I(d4);`
     model.tau_A = can_tau_A(d3);
     model.tau_S = can_tau_S(d2);
     model.step = can_step(d1);

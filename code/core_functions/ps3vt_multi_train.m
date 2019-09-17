@@ -89,7 +89,7 @@ function model = ps3vt_multi_train(XLX, X_train, y_train, model)
             if model.tau_S ~= 0
                 [U, S, V] = svd(W);
                 model.tail_start = min(model.tail_start, min(n_dimension, n_class));
-                for i_diag = model.tail_start : min(n_dimension, n_class)
+                for i_diag = 1 : model.tail_start
                     S(i_diag, i_diag) = max(0, S(i_diag, i_diag)-i_step * model.tau_S);
                 end
                 W = U * S * V';
